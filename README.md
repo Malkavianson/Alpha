@@ -1,6 +1,4 @@
-# [NEST API](https://generic-api-beta.vercel.app/docs)
-
-#### API em NEST para fins de aprendizagem
+# API de controle de estoque
 
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![NestJS](https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white)
@@ -8,9 +6,7 @@
 ![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white)
 ![Vercel](https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white)
 
-Este é o projeto do módulo seis do curso de Desenvolvimento Full Stack da Blue Edtech.
-
-Para esta aplicação foi desenvolvida uma API que administra dados de uma store fictícia
+Para esta aplicação foi desenvolvida uma API que administra dados de estoque, usuários e tickets com códigos de barras
 Este apresenta fundamentos em NestJS e Prisma, além de conceitos como autenticação, bancos de dados relacionais, filtragem de buscas e documentação de projetos
 
 ## Pré-requisitos
@@ -22,12 +18,6 @@ Este apresenta fundamentos em NestJS e Prisma, além de conceitos como autentica
 ## Scripts disponíveis
 
 Na pasta raíz do projeto podem ser executados os seguintes comandos:
-
-## Clone o repositório:
-
-```
-$ gh repo clone Malkavianson/gamingdev
-```
 
 ## Instalando as dependências:
 
@@ -63,9 +53,6 @@ Acesse [http://localhost:3333](http://localhost:3333) para visualizá-lo em seu 
 > >
 > > -   [Alexandre dos Santos Pereira Neto](https://www.linkedin.com/in/alexandrespneto/)
 
-## Licença
-
--   MIT License (MIT)
 
 ## Execução
 

@@ -23,16 +23,16 @@ export async function bootstrap(): Promise<void> {
 	console.log("Server Started\n\nMapping documentation");
 
 	const config = new DocumentBuilder()
-		.setTitle("Generic API")
-		.setDescription("Controller API for educational purpose")
-		.setVersion("1.2.12")
+		.setTitle("Alpha API")
+		.setDescription("Controlador de estoque Grupo Alpha")
+		.setVersion("1.0.0")
 		.setExternalDoc(`Local Documentation`, `http://localhost:${PORT}/api`)
 		.addTag("Status")
 		.addTag("Auth")
 		.addTag("Home")
 		.addBearerAuth()
-		.addServer("https://generic-api-beta.vercel.app/", "Online official")
-		.addServer("https://genericapi.up.railway.app/", "Online Backup")
+		// .addServer("https://generic-api-beta.vercel.app/", "Online official")
+		// .addServer("https://genericapi.up.railway.app/", "Online Backup")
 		.addServer("http://localhost:3333", "Local")
 		.build();
 

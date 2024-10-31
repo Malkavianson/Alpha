@@ -1,3 +1,6 @@
+// Encher o banco de dados para testes
+// Precisa ser adaptado ao sistema vigente
+
 import { Injectable, NotImplementedException } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import {
