@@ -9,5 +9,5 @@ export * from "./login.dto";
 export * from "./responseLogin.dto";
 export * from "./update-category.dto";
 export * from "./update-product.dto";
-export * from "./update-arrival.dto";
+export * from "./update-ticket.dto";
 export * from "./update-user.dto";

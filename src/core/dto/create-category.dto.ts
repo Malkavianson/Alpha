@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Exclude } from "class-transformer";
 import { IsNotEmpty, IsString } from "class-validator";
 
 export class CreateCategoryDto {
@@ -9,4 +10,7 @@ export class CreateCategoryDto {
 		example: "Product Category 1",
 	})
 	name: string;
+
+	@Exclude()
+	code: string;
 }

@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Exclude } from "class-transformer";
 import {
 	IsBoolean,
 	IsEmail,
@@ -13,17 +14,19 @@ export class CreateUserDto {
 	@IsString()
 	@IsNotEmpty()
 	@ApiProperty({
-		example: "Constantina Vareola",
+		description: "User",
+		example: "josesilva",
+	})
+	user: string;
+
+	@IsString()
+	@IsNotEmpty()
+	@ApiProperty({
 		description: "User name",
+		example: "José Silva",
 	})
 	name: string;
 
-	@IsEmail()
-	@ApiProperty({
-		example: "const@mail.com",
-		description: "User email",
-	})
-	email: string;
 
 	@IsString()
 	@MinLength(8)
@@ -37,22 +40,6 @@ export class CreateUserDto {
 	})
 	password: string;
 
-	@IsString()
-	@MaxLength(11)
-	@Matches(/^(\d{11})$/, {
-		message: "You must to send a number string with lenght 11",
-	})
-	@ApiProperty({
-		example: "03845761203",
-		description:
-			"User password => Must have a minimal of 8 characters, one uppercase, one lowercase, one symbol and one number.",
-	})
-	cpf: string;
-
-	@IsBoolean()
-	@ApiProperty({
-		example: "false",
-		description: "User's credentials level",
-	})
-	isAdmin: boolean;
+	@Exclude()
+	role: string;
 }

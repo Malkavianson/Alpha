@@ -7,7 +7,7 @@ import {
 	CategoriesModule,
 	OrdersModule,
 	ProductsModule,
-	ArrivalsModule,
+	TicketModule,
 	SeedModule,
 	HomeModule,
 } from "./modules";
@@ -16,7 +16,7 @@ import {
 	imports: [
 		AuthModule,
 		UsersModule,
-		ArrivalsModule,
+		TicketModule,
 		ProductsModule,
 		CategoriesModule,
 		OrdersModule,
@@ -26,4 +26,4 @@ import {
 	controllers: [AppController],
 	providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

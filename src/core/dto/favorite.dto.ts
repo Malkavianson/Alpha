@@ -3,17 +3,18 @@ import { IsNotEmpty, IsString, IsUUID } from "class-validator";
 
 export class FavoriteProductDto {
 	@IsUUID()
+	@IsNotEmpty()
 	@ApiProperty({
 		description: "User ID that is favoriting a product",
 		example: "12345abc-ab1d-12a3-1ab2-12a3b456c789",
 	})
 	userId: string;
 
-	@IsString()
+	@IsUUID()
 	@IsNotEmpty()
 	@ApiProperty({
-		description: "Procuct favorited",
-		example: "My product",
+		description: "Product ID that is favoritated by a user",
+		example: "12345abc-ab1d-12a3-1ab2-12a3b456c789",
 	})
-	productName: string;
+	productId: string;
 }

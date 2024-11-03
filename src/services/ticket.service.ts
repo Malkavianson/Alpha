@@ -3,7 +3,7 @@ import {
 	NotFoundException,
 	UnauthorizedException,
 } from "@nestjs/common";
-import { CreateTicketDto, UpdateArrivalDto } from "../core";
+import { CreateTicketDto, UpdateTicketDto } from "../core";
 import { handleErrorConstraintUnique } from "../utils";
 import { PrismaService } from "./prisma.service";
 import { Ticket, User } from "./models";
@@ -26,6 +26,10 @@ class TicketService {
 
 	async create(dto: CreateTicketDto): Promise<Ticket | void> {
 		return await this.prisma.ticket
+
+			// const = "product";
+
+
 			.create({ data: dto })
 			.catch(handleErrorConstraintUnique);
 	}
@@ -40,7 +44,7 @@ class TicketService {
 
 	async update(
 		id: string,
-		dto: UpdateArrivalDto,
+		dto: UpdateTicketDto,
 		user: User,
 	): Promise<Ticket> {
 		if (!user.isAdmin) {

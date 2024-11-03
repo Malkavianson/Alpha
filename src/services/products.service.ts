@@ -16,7 +16,19 @@ import { PrismaService } from "./prisma.service";
 
 @Injectable()
 export class ProductsService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(private readonly prisma: PrismaService) { }
+
+	async verifyNameAndReturnProduct(name: string): Promise<Product[]> {
+		const product: Product[] = await this.prisma.product.findMany({
+			where: { name },
+		});
+
+		if (!product) {
+			throw new NotFoundException(`Id: '${name}' not found`);
+		}
+
+		return product;
+	}
 
 	async verifyIdAndReturnProduct(id: string): Promise<Product> {
 		const product: Product = await this.prisma.product.findUnique({
@@ -115,7 +127,7 @@ export class ProductsService {
 			where: { productName: product.name },
 			select: {
 				productName: true,
-				user: { select: { id: true, email: true } },
+				user: { select: { id: true, user: true } },
 			},
 		});
 	}

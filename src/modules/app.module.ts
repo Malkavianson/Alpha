@@ -2,7 +2,7 @@ import {
 	AuthModule,
 	UsersModule,
 	ProductsModule,
-	ArrivalsModule,
+	TicketModule,
 	CategoriesModule,
 	OrdersModule,
 } from "./";
@@ -16,10 +16,10 @@ import { Module } from "@nestjs/common";
 	imports: [
 		UsersModule,
 		ProductsModule,
-		ArrivalsModule,
+		TicketModule,
 		CategoriesModule,
 		OrdersModule,
 		AuthModule,
 	],
 })
-export class AppModule {}
+export class AppModule { }

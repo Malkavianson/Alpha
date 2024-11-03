@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Exclude } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsString, IsUrl, IsUUID } from "class-validator";
 
 export class CreateProductDto {
@@ -11,7 +12,6 @@ export class CreateProductDto {
 	name: string;
 
 	@IsString()
-	@IsNotEmpty()
 	@ApiProperty({
 		description: "Description of Product",
 		example: "This is my first product",
@@ -27,13 +27,25 @@ export class CreateProductDto {
 	})
 	price: number;
 
-	@IsUrl()
+	@IsNumber()
 	@ApiProperty({
-		description: "Link to product Image",
+		description: "Quantity in stock",
 		example:
-			"https://numerologyinsightsblog.files.wordpress.com/2020/08/neutral-and-enemy-number-of-numerology.jpeg",
+			"0",
 	})
-	image: string;
+	quantity: number;
+
+	@Exclude()
+	code: string;
+
+	// Logica do código de barras:
+	// [codigo da empresa - 3][digito verificador - 1][categoria do produto - 3][código do produto - 6][digito verificador - 1][numeros aleatórios - 4]
+	@IsString()
+	@ApiProperty({
+		description: "product Barcode",
+		example: "12390010023485678",
+	})
+	barcode: string;
 
 	@IsUUID()
 	@IsNotEmpty()
@@ -41,5 +53,6 @@ export class CreateProductDto {
 		description: "Valid Product Category ID",
 		example: "qw145abc-ab1d-12a3-1ab2-12a3b456c456",
 	})
-	categoryId: string;
+	category: string;
+
 }

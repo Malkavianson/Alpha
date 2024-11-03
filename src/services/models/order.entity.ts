@@ -1,10 +1,10 @@
-import { Arrival } from "./ticket.entity";
-import { OrderToProduct } from "./orderToProduct.entity";
-import { User } from "./user.entity";
+// import { Arrival } from "./ticket.entity";
+// import { OrderToProduct } from "./orderToProduct.entity";
+// import { User } from "./user.entity";
 
-export class Order {
-	id: string;
-	arrival?: Arrival;
-	user?: User;
-	products?: OrderToProduct[];
-}
+// export class Order {
+// 	id: string;
+// 	arrival?: Arrival;
+// 	user?: User;
+// 	products?: OrderToProduct[];
+// }

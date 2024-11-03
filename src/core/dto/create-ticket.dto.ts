@@ -1,14 +1,17 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsNumber, IsPositive } from "class-validator";
-import { Product } from "src/services";
+import { Exclude } from "class-transformer";
+import { IsNotEmpty } from "class-validator";
 
-export class CreateTicketDto {
-	// @IsNumber()
+class CreateTicketDto {
 	@IsNotEmpty()
-	// @IsPositive()
 	@ApiProperty({
-		description: "ticket",
-		example: 1,
+		description: "Product name",
+		example: "firstProduct",
 	})
-	product: Product;
+	product: string;
+
+	@Exclude()
+	printed: number;
 }
+
+export { CreateTicketDto }

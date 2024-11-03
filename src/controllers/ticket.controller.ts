@@ -14,17 +14,17 @@ import {
 	ApiResponse,
 	ApiTags,
 } from "@nestjs/swagger";
-import { CreateTicketDto, UpdateArrivalDto } from "../core";
-import { TicketService, User, Ticket } from "../services";
 import { AuthGuard } from "@nestjs/passport";
 import { LoggedUser } from "../decorators";
+import { CreateTicketDto, UpdateTicketDto } from "../core";
+import { TicketService, User, Ticket } from "../services";
 
 @UseGuards(AuthGuard())
 @ApiTags("ticket")
 @ApiBearerAuth()
 @Controller("ticket")
 class TicketController {
-	constructor(private readonly arrivalsService: TicketService) { }
+	constructor(private readonly TicketService: TicketService) { }
 
 	@Post()
 	@ApiOperation({
@@ -33,7 +33,7 @@ class TicketController {
 			"This is the ticket list, you must to get your token before open a new ticket;",
 	})
 	async create(@Body() dto: CreateTicketDto): Promise<Ticket | void> {
-		return await this.arrivalsService.create(dto);
+		return await this.TicketService.create(dto);
 	}
 
 	@Get()
@@ -41,7 +41,7 @@ class TicketController {
 		summary: "List all Arrivals",
 	})
 	async findAll(): Promise<Ticket[]> {
-		return await this.arrivalsService.findAll();
+		return await this.TicketService.findAll();
 	}
 
 	@Get(":id")
@@ -49,7 +49,7 @@ class TicketController {
 		summary: "Find one Arrival by ID",
 	})
 	async findOne(@Param("id") id: string): Promise<Ticket> {
-		return await this.arrivalsService.findOne(id);
+		return await this.TicketService.findOne(id);
 	}
 
 	@Patch(":id")
@@ -58,10 +58,10 @@ class TicketController {
 	})
 	async update(
 		@Param("id") id: string,
-		@Body() dto: UpdateArrivalDto,
+		@Body() dto: UpdateTicketDto,
 		@LoggedUser() user: User,
 	): Promise<Ticket | void> {
-		return await this.arrivalsService.update(id, dto, user);
+		return await this.TicketService.update(id, dto, user);
 	}
 
 	@Delete(":id")
@@ -76,7 +76,7 @@ class TicketController {
 		@Param("id") id: string,
 		@LoggedUser() user: User,
 	): Promise<Ticket> {
-		return await this.arrivalsService.remove(id, user);
+		return await this.TicketService.remove(id, user);
 	}
 }
 

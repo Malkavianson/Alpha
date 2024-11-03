@@ -3,8 +3,9 @@ export class Product {
 	name?: string;
 	description?: string;
 	price?: number;
-	image?: string;
+	quantity?: number;
+	code?: string;
+	barcode?: string;
 	createdAt?: Date;
-	updatedAt?: Date;
 	categoryId?: string;
 }

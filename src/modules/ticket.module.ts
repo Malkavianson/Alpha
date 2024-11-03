@@ -1,8 +1,8 @@
-import { TicketController } from "../controllers";
 import { PassportModule } from "@nestjs/passport";
-import { TicketService } from "../services";
 import { Module } from "@nestjs/common";
 import { PrismaModule } from "./prisma.module";
+import { TicketController } from "../controllers";
+import { TicketService } from "../services";
 
 @Module({
 	imports: [
@@ -12,4 +12,6 @@ import { PrismaModule } from "./prisma.module";
 	controllers: [TicketController],
 	providers: [TicketService],
 })
-export class ArrivalsModule { }
+class TicketModule { }
+
+export { TicketModule }
