@@ -1,6 +1,6 @@
-import { ArrivalsController } from "../controllers";
+import { TicketController } from "../controllers";
 import { PassportModule } from "@nestjs/passport";
-import { ArrivalsService } from "../services";
+import { TicketService } from "../services";
 import { Module } from "@nestjs/common";
 import { PrismaModule } from "./prisma.module";
 
@@ -9,7 +9,7 @@ import { PrismaModule } from "./prisma.module";
 		PrismaModule,
 		PassportModule.register({ defaultStrategy: "jwt" }),
 	],
-	controllers: [ArrivalsController],
-	providers: [ArrivalsService],
+	controllers: [TicketController],
+	providers: [TicketService],
 })
-export class ArrivalsModule {}
+export class ArrivalsModule { }

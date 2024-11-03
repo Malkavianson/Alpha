@@ -1,13 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsNumber, IsPositive } from "class-validator";
+import { Product } from "src/services";
 
-export class CreateArrivalDto {
-	@IsNumber()
+export class CreateTicketDto {
+	// @IsNumber()
 	@IsNotEmpty()
-	@IsPositive()
+	// @IsPositive()
 	@ApiProperty({
-		description: "Arrival Number",
+		description: "ticket",
 		example: 1,
 	})
-	number: number;
+	product: Product;
 }

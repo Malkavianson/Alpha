@@ -2,7 +2,7 @@ export * from "./create-category.dto";
 export * from "./create-order-to-product.dto";
 export * from "./create-order.dto";
 export * from "./create-product.dto";
-export * from "./create-arrival.dto";
+export * from "./create-ticket.dto";
 export * from "./create-user.dto";
 export * from "./favorite.dto";
 export * from "./login.dto";

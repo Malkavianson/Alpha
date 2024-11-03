@@ -14,25 +14,25 @@ import {
 	ApiResponse,
 	ApiTags,
 } from "@nestjs/swagger";
-import { CreateArrivalDto, UpdateArrivalDto } from "../core";
-import { ArrivalsService, Arrival, User } from "../services";
+import { CreateTicketDto, UpdateArrivalDto } from "../core";
+import { TicketService, User, Ticket } from "../services";
 import { AuthGuard } from "@nestjs/passport";
 import { LoggedUser } from "../decorators";
 
 @UseGuards(AuthGuard())
-@ApiTags("Arrivals")
+@ApiTags("ticket")
 @ApiBearerAuth()
-@Controller("arrivals")
-export class ArrivalsController {
-	constructor(private readonly arrivalsService: ArrivalsService) {}
+@Controller("ticket")
+class TicketController {
+	constructor(private readonly arrivalsService: TicketService) { }
 
 	@Post()
 	@ApiOperation({
-		summary: "Fill a new arrival state",
+		summary: "Fill a new ticket",
 		description:
-			"This is the arrival list, you must to get your token before open a new order;",
+			"This is the ticket list, you must to get your token before open a new ticket;",
 	})
-	async create(@Body() dto: CreateArrivalDto): Promise<Arrival | void> {
+	async create(@Body() dto: CreateTicketDto): Promise<Ticket | void> {
 		return await this.arrivalsService.create(dto);
 	}
 
@@ -40,7 +40,7 @@ export class ArrivalsController {
 	@ApiOperation({
 		summary: "List all Arrivals",
 	})
-	async findAll(): Promise<Arrival[]> {
+	async findAll(): Promise<Ticket[]> {
 		return await this.arrivalsService.findAll();
 	}
 
@@ -48,7 +48,7 @@ export class ArrivalsController {
 	@ApiOperation({
 		summary: "Find one Arrival by ID",
 	})
-	async findOne(@Param("id") id: string): Promise<Arrival> {
+	async findOne(@Param("id") id: string): Promise<Ticket> {
 		return await this.arrivalsService.findOne(id);
 	}
 
@@ -60,7 +60,7 @@ export class ArrivalsController {
 		@Param("id") id: string,
 		@Body() dto: UpdateArrivalDto,
 		@LoggedUser() user: User,
-	): Promise<Arrival | void> {
+	): Promise<Ticket | void> {
 		return await this.arrivalsService.update(id, dto, user);
 	}
 
@@ -75,7 +75,9 @@ export class ArrivalsController {
 	async remove(
 		@Param("id") id: string,
 		@LoggedUser() user: User,
-	): Promise<Arrival> {
+	): Promise<Ticket> {
 		return await this.arrivalsService.remove(id, user);
 	}
 }
+
+export { TicketController }

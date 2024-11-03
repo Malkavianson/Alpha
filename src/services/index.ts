@@ -5,7 +5,7 @@ export * from "./categories.service";
 export * from "./orders.service";
 export * from "./prisma.service";
 export * from "./products.service";
-export * from "./arrivals.service";
+export * from "./ticket.service";
 export * from "./users.service";
 export * from "./seed.service";
 export * from "./home.service";

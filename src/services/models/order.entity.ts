@@ -1,4 +1,4 @@
-import { Arrival } from "./arrival.entity";
+import { Arrival } from "./ticket.entity";
 import { OrderToProduct } from "./orderToProduct.entity";
 import { User } from "./user.entity";
 

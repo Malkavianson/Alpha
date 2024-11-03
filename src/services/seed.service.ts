@@ -4,7 +4,7 @@
 import { Injectable, NotImplementedException } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import {
-	CreateArrivalDto,
+	CreateTicketDto,
 	CreateCategoryDto,
 	CreateProductDto,
 	CreateUserDto,
@@ -13,7 +13,7 @@ import { Category } from "./models";
 
 @Injectable()
 export class SeedService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(private readonly prisma: PrismaService) { }
 	private seedUsers = (quantity: number): CreateUserDto[] => {
 		const data: CreateUserDto[] = [];
 		for (let i = 0; i < quantity; i++) {
@@ -55,8 +55,8 @@ export class SeedService {
 		return data;
 	};
 
-	private seedArrival = (users: number): CreateArrivalDto[] => {
-		const data: CreateArrivalDto[] = [];
+	private seedArrival = (users: number): CreateTicketDto[] => {
+		const data: CreateTicketDto[] = [];
 		const homies = Math.round(users / 3 + Math.random() * (users / 2));
 		for (let i = 0; i < homies; i++) {
 			data.push({
