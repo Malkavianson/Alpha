@@ -16,7 +16,7 @@ import { PrismaService } from "./prisma.service";
 
 @Injectable()
 export class ProductsService {
-	constructor(private readonly prisma: PrismaService) { }
+	constructor(private readonly prisma: PrismaService) {}
 
 	async verifyNameAndReturnProduct(name: string): Promise<Product[]> {
 		const product: Product[] = await this.prisma.product.findMany({

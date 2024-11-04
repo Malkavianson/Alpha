@@ -5,10 +5,10 @@ import {
 	AuthModule,
 	UsersModule,
 	CategoriesModule,
-	OrdersModule,
+	// OrdersModule,
 	ProductsModule,
 	TicketModule,
-	SeedModule,
+	// SeedModule,
 	HomeModule,
 } from "./modules";
 
@@ -19,11 +19,11 @@ import {
 		TicketModule,
 		ProductsModule,
 		CategoriesModule,
-		OrdersModule,
-		SeedModule,
+		// OrdersModule,
+		// SeedModule,
 		HomeModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

@@ -13,7 +13,7 @@ import { Category } from "./models";
 
 @Injectable()
 export class SeedService {
-	constructor(private readonly prisma: PrismaService) { }
+	constructor(private readonly prisma: PrismaService) {}
 	private seedUsers = (quantity: number): CreateUserDto[] => {
 		const data: CreateUserDto[] = [];
 		for (let i = 0; i < quantity; i++) {

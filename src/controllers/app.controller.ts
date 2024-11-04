@@ -20,13 +20,13 @@ export class AppController {
 		res.redirect("/api");
 	}
 
-	@ApiExcludeEndpoint()
-	@Get("docs")
-	getAppSwaggerEditor(@Res() res: Response): void {
-		res.redirect(
-			"https://editor.swagger.io/?url=https://generic-api-beta.vercel.app/api-yaml",
-		);
-	}
+	// @ApiExcludeEndpoint()
+	// @Get("docs")
+	// getAppSwaggerEditor(@Res() res: Response): void {
+	// 	res.redirect(
+	// 		"https://editor.swagger.io/?url=https://generic-api-beta.vercel.app/api-yaml",
+	// 	);
+	// }
 
 	@ApiExcludeEndpoint()
 	@Get("stop/:token")

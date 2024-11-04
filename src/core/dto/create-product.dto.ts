@@ -30,8 +30,7 @@ export class CreateProductDto {
 	@IsNumber()
 	@ApiProperty({
 		description: "Quantity in stock",
-		example:
-			"0",
+		example: "0",
 	})
 	quantity: number;
 
@@ -54,5 +53,4 @@ export class CreateProductDto {
 		example: "qw145abc-ab1d-12a3-1ab2-12a3b456c456",
 	})
 	category: string;
-
 }

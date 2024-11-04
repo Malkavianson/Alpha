@@ -22,4 +22,4 @@ import { Module } from "@nestjs/common";
 		AuthModule,
 	],
 })
-export class AppModule { }
+export class AppModule {}

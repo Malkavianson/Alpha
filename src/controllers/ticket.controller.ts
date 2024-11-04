@@ -24,7 +24,7 @@ import { TicketService, User, Ticket } from "../services";
 @ApiBearerAuth()
 @Controller("ticket")
 class TicketController {
-	constructor(private readonly TicketService: TicketService) { }
+	constructor(private readonly TicketService: TicketService) {}
 
 	@Post()
 	@ApiOperation({
@@ -38,7 +38,7 @@ class TicketController {
 
 	@Get()
 	@ApiOperation({
-		summary: "List all Arrivals",
+		summary: "List all Tickets",
 	})
 	async findAll(): Promise<Ticket[]> {
 		return await this.TicketService.findAll();
@@ -46,15 +46,23 @@ class TicketController {
 
 	@Get(":id")
 	@ApiOperation({
-		summary: "Find one Arrival by ID",
+		summary: "Find one Ticket by ID",
 	})
 	async findOne(@Param("id") id: string): Promise<Ticket> {
 		return await this.TicketService.findOne(id);
 	}
 
+	@Get(":id")
+	@ApiOperation({
+		summary: "Find one Ticket by Barcode",
+	})
+	async findByBarcode(@Param("id") id: string): Promise<Ticket> {
+		return await this.TicketService.findOne(id);
+	}
+
 	@Patch(":id")
 	@ApiOperation({
-		summary: "Patch Arrival state information",
+		summary: "Patch Ticket information",
 	})
 	async update(
 		@Param("id") id: string,
@@ -64,13 +72,25 @@ class TicketController {
 		return await this.TicketService.update(id, dto, user);
 	}
 
+	@Patch(":id")
+	@ApiOperation({
+		summary: "Patch Ticket information",
+	})
+	async changeStatus(
+		@Param("id") id: string,
+		@Body() dto: UpdateTicketDto,
+		@LoggedUser() user: User,
+	): Promise<Ticket | void> {
+		return await this.TicketService.changeStatus(id, dto, user);
+	}
+
 	@Delete(":id")
 	@ApiResponse({
 		status: 200,
-		description: "Arrival place Released",
+		description: "Delete Ticket",
 	})
 	@ApiOperation({
-		summary: "Release one Arrival state by ID",
+		summary: "Delete Ticket by ID",
 	})
 	async remove(
 		@Param("id") id: string,
@@ -80,4 +100,4 @@ class TicketController {
 	}
 }
 
-export { TicketController }
+export { TicketController };

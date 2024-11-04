@@ -12,6 +12,9 @@ class CreateTicketDto {
 
 	@Exclude()
 	printed: number;
+
+	@Exclude()
+	status: boolean;
 }
 
-export { CreateTicketDto }
+export { CreateTicketDto };

@@ -29,10 +29,9 @@ export class UsersService {
 
 		const data: CreateUserDto = {
 			name: dto.name,
-			email: dto.email,
+			user: dto.user,
 			password: hashedPassword,
-			cpf: dto.cpf,
-			isAdmin: false,
+			role: dto.role,
 		};
 
 		return await this.prisma.users
@@ -84,7 +83,7 @@ export class UsersService {
 			const hashedPassword = await bcrypt.hash(dto.password, 7);
 			dto.password = hashedPassword;
 		}
-		if (user.isAdmin) {
+		if (user.role != "SuperAdmin") {
 			if (thisUser.id === user.id) {
 				this.updateUser(id, dto);
 				throw new ImATeapotException({
@@ -101,8 +100,8 @@ export class UsersService {
 			}
 		} else if (thisUser.id === user.id) {
 			let message: string;
-			if (dto.isAdmin === true) {
-				dto.isAdmin = false;
+			if (dto.role != user.role) {
+				dto.role = user.role;
 				message: "I'm a teapot < you cannot modify your credential levels & you must to reload your session >";
 			} else {
 				message: "I'm a teapot < you must to reload your session >";
@@ -121,7 +120,7 @@ export class UsersService {
 		user: User,
 	): Promise<User | UnauthorizedException> {
 		const thisUser = await this.verifyIdAndReturnUser(id);
-		if (user.isAdmin) {
+		if (user.role == "SuperAdmin") {
 			return await this.prisma.users.delete({
 				where: { id },
 				select: this.userSelect,

@@ -12,6 +12,6 @@ import { TicketService } from "../services";
 	controllers: [TicketController],
 	providers: [TicketService],
 })
-class TicketModule { }
+class TicketModule {}
 
-export { TicketModule }
+export { TicketModule };

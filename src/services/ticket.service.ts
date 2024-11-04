@@ -7,30 +7,37 @@ import { CreateTicketDto, UpdateTicketDto } from "../core";
 import { handleErrorConstraintUnique } from "../utils";
 import { PrismaService } from "./prisma.service";
 import { Ticket, User } from "./models";
+import { Prisma } from "@prisma/client";
 
 @Injectable()
 class TicketService {
-	constructor(private readonly prisma: PrismaService) { }
+	constructor(private readonly prisma: PrismaService) {}
 
-	async verifyIdAndReturnArrival(id: string): Promise<Ticket> {
-		const arrival: Ticket = await this.prisma.ticket.findUnique({
+	async verifyIdAndReturnTicket(id: string): Promise<Ticket> {
+		const ticket: Ticket = await this.prisma.ticket.findUnique({
 			where: { id },
 		});
 
-		if (!arrival) {
-			throw new NotFoundException(`Arrival id:'${id}' not found`);
+		if (!ticket) {
+			throw new NotFoundException(`Ticket id:'${id}' not found`);
 		}
 
-		return arrival;
+		return ticket;
 	}
 
 	async create(dto: CreateTicketDto): Promise<Ticket | void> {
+		const data: Prisma.TicketCreateInput = {
+			product: {
+				connect: {
+					name: dto.product,
+				},
+			},
+		};
+
 		return await this.prisma.ticket
-
-			// const = "product";
-
-
-			.create({ data: dto })
+			.create({
+				data,
+			})
 			.catch(handleErrorConstraintUnique);
 	}
 
@@ -39,29 +46,38 @@ class TicketService {
 	}
 
 	async findOne(id: string): Promise<Ticket> {
-		return await this.verifyIdAndReturnArrival(id);
+		return await this.verifyIdAndReturnTicket(id);
 	}
 
-	async update(
-		id: string,
-		dto: UpdateTicketDto,
-		user: User,
-	): Promise<Ticket> {
-		if (!user.isAdmin) {
+	async update(id: string, user: User): Promise<Ticket> {
+		if (user.role != "SuperAdmin") {
 			throw new UnauthorizedException();
 		}
-		await this.verifyIdAndReturnArrival(id);
+		const ticket = await this.verifyIdAndReturnTicket(id);
 
 		return await this.prisma.ticket
-			.update({ where: { id }, data: dto })
+			.update({ where: { id }, data: { printed: ticket.printed++ } })
+			.catch(handleErrorConstraintUnique);
+	}
+
+	async changeStatus(id: string, user: User): Promise<Ticket> {
+		if (user.role != "SuperAdmin") {
+			throw new UnauthorizedException();
+		}
+		const ticket = await this.verifyIdAndReturnTicket(id);
+
+		const status = ticket.status;
+
+		return await this.prisma.ticket
+			.update({ where: { id }, data: { status: !status } })
 			.catch(handleErrorConstraintUnique);
 	}
 
 	async remove(id: string, user: User): Promise<Ticket> {
-		if (!user.isAdmin) {
+		if (user.role != "SuperAdmin") {
 			throw new UnauthorizedException();
 		}
-		await this.verifyIdAndReturnArrival(id);
+		await this.verifyIdAndReturnTicket(id);
 
 		return await this.prisma.ticket.delete({
 			where: { id },
@@ -69,4 +85,4 @@ class TicketService {
 	}
 }
 
-export { TicketService }
+export { TicketService };

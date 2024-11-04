@@ -27,7 +27,6 @@ export class CreateUserDto {
 	})
 	name: string;
 
-
 	@IsString()
 	@MinLength(8)
 	@Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {

@@ -66,6 +66,7 @@ model Product {
 model Ticket {
   id          String   @id @default(uuid())
   printed     Float    @default(0)
+  status      Boolean  @default(true)
   product     Product  @relation(fields: [productName], references: [name], onDelete: Cascade)
   productName String   @map("product_name")
   createdAt   DateTime @default(now()) @map("created_at")
