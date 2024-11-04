@@ -55,24 +55,39 @@ export class ProductsService {
 	}
 
 	async create(dto: CreateProductDto, user: User): Promise<Product | void> {
-		if (!user.isAdmin) {
+		if (user.role != "SuperAdmin") {
 			throw new UnauthorizedException();
 		}
+
+		const data: Prisma.ProductCreateInput = {
+			name: dto.name,
+			description: dto.description,
+			price: dto.price,
+			quantity: dto.quantity,
+			code: dto.code,
+			barcode: dto.barcode,
+			category: {
+				connect: {
+					id: dto.category,
+				},
+			},
+		};
+
 		return await this.prisma.product
-			.create({ data: dto })
+			.create({ data })
 			.catch(handleErrorConstraintUnique);
 	}
 
 	async favorite(dto: FavoriteProductDto, user: User): Promise<Favorite> {
-		if (!user.isAdmin) {
+		if (user.role != "SuperAdmin") {
 			console.log(user);
 		}
 		const product: Product = await this.prisma.product.findUnique({
-			where: { name: dto.productName },
+			where: { name: dto.productId },
 		});
 
 		if (!product) {
-			throw new NotFoundException(`Product ${dto.productName} not found`);
+			throw new NotFoundException(`Product ${dto.productId} not found`);
 		}
 
 		const userUnique: User = await this.prisma.users.findUnique({
@@ -91,7 +106,7 @@ export class ProductsService {
 			},
 			product: {
 				connect: {
-					name: dto.productName,
+					name: dto.productId,
 				},
 			},
 		};
@@ -118,15 +133,15 @@ export class ProductsService {
 	}
 
 	async findAllFavUsersById(id: string, user: User): Promise<Favorite[]> {
-		if (!user.isAdmin) {
+		if (user.role != "SuperAdmin") {
 			console.log(user);
 		}
 		const product: Product = await this.verifyIdAndReturnProduct(id);
 
 		return await this.prisma.favorite.findMany({
-			where: { productName: product.name },
+			where: { productId: product.name },
 			select: {
-				productName: true,
+				productId: true,
 				user: { select: { id: true, user: true } },
 			},
 		});
@@ -137,18 +152,32 @@ export class ProductsService {
 		dto: UpdateProductDto,
 		user: User,
 	): Promise<Product | void> {
-		if (!user.isAdmin) {
+		if (user.role != "SuperAdmin") {
 			throw new UnauthorizedException();
 		}
 		await this.verifyIdAndReturnProduct(id);
 
+		const data: Prisma.ProductCreateInput = {
+			name: dto.name,
+			description: dto.description,
+			price: dto.price,
+			quantity: dto.quantity,
+			code: dto.code,
+			barcode: dto.barcode,
+			category: {
+				connect: {
+					id: dto.category,
+				},
+			},
+		};
+
 		return await this.prisma.product
-			.update({ where: { id }, data: dto })
+			.update({ where: { id }, data })
 			.catch(handleErrorConstraintUnique);
 	}
 
 	async remove(id: string, user: User): Promise<Product> {
-		if (!user.isAdmin) {
+		if (user.role != "SuperAdmin") {
 			throw new UnauthorizedException();
 		}
 		await this.verifyIdAndReturnProduct(id);
@@ -162,7 +191,7 @@ export class ProductsService {
 	}
 
 	async disFav(id: string, user: User): Promise<Favorite> {
-		if (!user.isAdmin) {
+		if (user.role != "SuperAdmin") {
 			console.log(user);
 		}
 		await this.verifyIdAndReturnProductFav(id);
@@ -171,14 +200,14 @@ export class ProductsService {
 	}
 
 	async disFavAll(id: string, user: User): Promise<string> {
-		if (!user.isAdmin) {
+		if (user.role != "SuperAdmin") {
 			throw new UnauthorizedException();
 		}
 		const allUsers = await this.findAllFavUsersById(id, user);
 
 		allUsers.forEach(async e => {
 			const exFav = await this.prisma.favorite.findMany({
-				where: { userId: e.userId, productName: e.productName },
+				where: { userId: e.userId, productId: e.productId },
 			});
 
 			exFav.forEach(async e => {

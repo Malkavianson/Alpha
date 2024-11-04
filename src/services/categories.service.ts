@@ -25,7 +25,7 @@ export class CategoriesService {
 	}
 
 	async create(dto: CreateCategoryDto, user: User): Promise<Category> {
-		if (!user.isAdmin) {
+		if (user.role != "SuperAdmin") {
 			throw new UnauthorizedException();
 		}
 		return await this.prisma.category
@@ -48,7 +48,7 @@ export class CategoriesService {
 		dto: UpdateCategoryDto,
 		user: User,
 	): Promise<Category> {
-		if (!user.isAdmin) {
+		if (user.role != "SuperAdmin") {
 			throw new UnauthorizedException();
 		}
 		await this.verifyIdAndReturnCategory(id);
@@ -59,7 +59,7 @@ export class CategoriesService {
 	}
 
 	async remove(id: string, user: User): Promise<Category> {
-		if (!user.isAdmin) {
+		if (user.role != "SuperAdmin") {
 			throw new UnauthorizedException();
 		}
 		await this.verifyIdAndReturnCategory(id);

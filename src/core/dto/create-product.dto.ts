@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
 import { IsNotEmpty, IsNumber, IsString, IsUrl, IsUUID } from "class-validator";
+import { Category } from "src/services";
 
 export class CreateProductDto {
 	@IsString()

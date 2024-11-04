@@ -66,10 +66,9 @@ class TicketController {
 	})
 	async update(
 		@Param("id") id: string,
-		@Body() dto: UpdateTicketDto,
 		@LoggedUser() user: User,
 	): Promise<Ticket | void> {
-		return await this.TicketService.update(id, dto, user);
+		return await this.TicketService.update(id, user);
 	}
 
 	@Patch(":id")
@@ -78,10 +77,9 @@ class TicketController {
 	})
 	async changeStatus(
 		@Param("id") id: string,
-		@Body() dto: UpdateTicketDto,
 		@LoggedUser() user: User,
 	): Promise<Ticket | void> {
-		return await this.TicketService.changeStatus(id, dto, user);
+		return await this.TicketService.changeStatus(id, user);
 	}
 
 	@Delete(":id")

@@ -4,7 +4,6 @@ import {
 	ProductsModule,
 	TicketModule,
 	CategoriesModule,
-	OrdersModule,
 } from "./";
 import { AppController } from "../controllers";
 import { AppService } from "../services";
@@ -18,7 +17,6 @@ import { Module } from "@nestjs/common";
 		ProductsModule,
 		TicketModule,
 		CategoriesModule,
-		OrdersModule,
 		AuthModule,
 	],
 })

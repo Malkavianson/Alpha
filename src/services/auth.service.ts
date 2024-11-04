@@ -10,10 +10,8 @@ export class AuthService {
 	private userSelect = {
 		id: true,
 		name: true,
-		email: true,
-		cpf: true,
+		user: true,
 		password: true,
-		updatedAt: true,
 		createdAt: true,
 	};
 
@@ -22,35 +20,34 @@ export class AuthService {
 		private readonly jwtService: JwtService,
 	) {}
 
-	async login({ email, password }: LoginDto): Promise<ResponseLoginDto> {
-		const user: User = await this.prisma.users.findUnique({
-			where: { email },
+	async login({ user, password }: LoginDto): Promise<ResponseLoginDto> {
+		const currentUser: User = await this.prisma.users.findUnique({
+			where: { user },
 			select: {
 				...this.userSelect,
-				isAdmin: true,
-				cpf: true,
+				role: true,
 			},
 		});
 
-		if (!user) {
+		if (!currentUser) {
 			throw new NotFoundException("Invalid email or password ");
 		}
 
 		const passwordMatch: boolean = await bcrypt.compare(
 			password,
-			user.password,
+			currentUser.password,
 		);
 
 		if (!passwordMatch) {
 			throw new NotFoundException("Invalid email or password ");
 		}
 
-		delete user.password;
+		delete currentUser.password;
 
 		const token: string = this.jwtService.sign({
-			email,
+			currentUser,
 		});
 
-		return { token, user };
+		return { token, currentUser };
 	}
 }

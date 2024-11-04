@@ -17,28 +17,6 @@ export class HomeService {
 				},
 			})
 			.catch(handleErrorConstraintUnique);
-		res.arrival = await this.prisma.order
-			.findMany({
-				where: {
-					userId,
-					AND: {
-						arrival: {
-							isNot: null,
-						},
-					},
-				},
-				select: {
-					arrival: true,
-				},
-			})
-			.catch(handleErrorConstraintUnique);
-		res.orders = await this.prisma.order
-			.findMany({
-				where: {
-					userId,
-				},
-			})
-			.catch(handleErrorConstraintUnique);
 		return res;
 	}
 }
