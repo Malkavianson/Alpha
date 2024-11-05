@@ -14,17 +14,16 @@ import { User } from "./models";
 export class UsersService {
 	private userSelect = {
 		id: true,
+		role: true,
+		user: true,
 		name: true,
-		email: true,
-		cpf: true,
-		isAdmin: true,
-		updatedAt: true,
 		createdAt: true,
 	};
 
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(private readonly prisma: PrismaService) { }
 
 	async create(dto: CreateUserDto): Promise<User | void> {
+		console.log(dto);
 		const hashedPassword = await bcrypt.hash(dto.password, 7);
 
 		const data: CreateUserDto = {
@@ -34,9 +33,12 @@ export class UsersService {
 			role: dto.role,
 		};
 
-		return await this.prisma.users
+		const user = await this.prisma.users
 			.create({ data, select: this.userSelect })
 			.catch(handleErrorConstraintUnique);
+
+		console.log(user)
+		return user
 	}
 
 	async findAll(): Promise<User[]> {

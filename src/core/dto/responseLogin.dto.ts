@@ -12,5 +12,5 @@ export class ResponseLoginDto {
 	@ApiProperty({
 		description: "User Data",
 	})
-	currentUser: User;
+	user: User;
 }
