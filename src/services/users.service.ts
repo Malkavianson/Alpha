@@ -20,7 +20,7 @@ export class UsersService {
 		createdAt: true,
 	};
 
-	constructor(private readonly prisma: PrismaService) { }
+	constructor(private readonly prisma: PrismaService) {}
 
 	async create(dto: CreateUserDto): Promise<User | void> {
 		console.log(dto);
@@ -30,15 +30,14 @@ export class UsersService {
 			name: dto.name,
 			user: dto.user,
 			password: hashedPassword,
-			role: dto.role,
 		};
 
 		const user = await this.prisma.users
 			.create({ data, select: this.userSelect })
 			.catch(handleErrorConstraintUnique);
 
-		console.log(user)
-		return user
+		console.log(user);
+		return user;
 	}
 
 	async findAll(): Promise<User[]> {
@@ -85,13 +84,15 @@ export class UsersService {
 			const hashedPassword = await bcrypt.hash(dto.password, 7);
 			dto.password = hashedPassword;
 		}
-		if (user.role != "SuperAdmin") {
+		if (user.role == "SuperAdmin") {
+			console.log("88");
 			if (thisUser.id === user.id) {
 				this.updateUser(id, dto);
 				throw new ImATeapotException({
 					message: "I'm a teapot < you must to reload your session >",
 				});
 			} else {
+				console.log("95");
 				return await this.prisma.users
 					.update({
 						where: { id },

@@ -28,6 +28,8 @@ export class CategoriesService {
 		if (user.role != "SuperAdmin") {
 			throw new UnauthorizedException();
 		}
+		const catNumber = await this.prisma.category.count();
+		dto.code = `${1001 + catNumber}`;
 		return await this.prisma.category
 			.create({ data: dto })
 			.catch(handleErrorConstraintUnique);

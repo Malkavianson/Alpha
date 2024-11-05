@@ -28,17 +28,17 @@ export class AppController {
 	// 	);
 	// }
 
-	@ApiExcludeEndpoint()
-	@Get("stop/:token")
-	getAppStop(@Param("token") token: string): void {
-		if (token === process.env.INTERRUPTER_TOKEN) {
-			console.log("Server paralyzed");
-			process.kill(0, "SIGINT");
-		} else {
-			console.log("wrong token");
-		}
-		throw new NotImplementedException();
-	}
+	// @ApiExcludeEndpoint()
+	// @Get("stop/:token")
+	// getAppStop(@Param("token") token: string): void {
+	// 	if (token === process.env.INTERRUPTER_TOKEN) {
+	// 		console.log("Server paralyzed");
+	// 		process.kill(0, "SIGINT");
+	// 	} else {
+	// 		console.log("wrong token");
+	// 	}
+	// 	throw new NotImplementedException();
+	// }
 
 	@Get("status")
 	getAppStatus(): string {

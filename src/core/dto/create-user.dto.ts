@@ -29,6 +29,7 @@ export class CreateUserDto {
 
 	@IsString()
 	@MinLength(8)
+	@IsNotEmpty()
 	@Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
 		message: "Your password must be strong",
 	})
@@ -38,7 +39,4 @@ export class CreateUserDto {
 			"User password => Must have a minimal of 8 characters, one uppercase, one lowercase, one symbol and one number.",
 	})
 	password: string;
-
-	@Exclude()
-	role: string;
 }
