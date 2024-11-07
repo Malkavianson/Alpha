@@ -70,7 +70,7 @@ export class ProductsController {
 	@UseGuards(AuthGuard())
 	@ApiBearerAuth()
 	@ApiOperation({
-		summary: "List all users that favorited one Product by ID",
+		summary: "List all users that favorited one Product by product ID",
 	})
 	@ApiBearerAuth()
 	async findAllFavUsersById(
@@ -107,7 +107,7 @@ export class ProductsController {
 		return await this.productsService.remove(id, user);
 	}
 
-	@Delete("fav/:id")
+	@Delete("unfav/:id")
 	@UseGuards(AuthGuard())
 	@ApiOperation({
 		summary: "Delete one Product favorited for one User by ID",
@@ -121,10 +121,10 @@ export class ProductsController {
 		return await this.productsService.disFav(id, user);
 	}
 
-	@Delete("favAll/:id")
+	@Delete("unfavAll/:id")
 	@UseGuards(AuthGuard())
 	@ApiOperation({
-		summary: "Delete all users that favorited one Product by ID",
+		summary: "Delete all users that favorited one Product by product ID",
 	})
 	@UseGuards(AuthGuard())
 	@ApiBearerAuth()

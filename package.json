@@ -10,6 +10,7 @@
 		"dev": "nest start --watch",
 		"format": "prettier --write \"src/**/*.*\"",
 		"lint": "eslint \"{src,test}/**/*.ts\" --fix",
+		"fix": "yarn format && yarn lint",
 		"prebuild": "rimraf dist",
 		"prod": "node dist/main",
 		"prodev": "yarn format && yarn lint && yarn dev",

@@ -16,12 +16,19 @@ import { PrismaService } from "./prisma.service";
 
 @Injectable()
 export class ProductsService {
-	constructor(private readonly prisma: PrismaService) { }
+	constructor(private readonly prisma: PrismaService) {}
 
-	criaDigitoVerificador(str: string) {
-		let sum = str.split('').map(Number).reduce((acc, num) => acc + num, 0);
+	createVerificatorDigit(str: string) {
+		let sum = str
+			.split("")
+			.map(Number)
+			.reduce((acc, num) => acc + num, 0);
 		while (sum >= 10) {
-			sum = sum.toString().split('').map(Number).reduce((acc, num) => acc + num, 0);
+			sum = sum
+				.toString()
+				.split("")
+				.map(Number)
+				.reduce((acc, num) => acc + num, 0);
 		}
 		return sum;
 	}
@@ -70,15 +77,23 @@ export class ProductsService {
 		// Logica do código de barras:
 		// [categoria do produto - 4][digito verificador - 1][código do produto - 7][digito verificador - 1][numeros aleatórios - 4]
 
-		const prodNumber: number = await this.prisma.product.count().catch(handleErrorConstraintUnique);;
-		const category: Category = await this.prisma.category.findUnique({ where: { id: dto.category } }).catch(handleErrorConstraintUnique);
+		const prodNumber: number = await this.prisma.product
+			.count()
+			.catch(handleErrorConstraintUnique);
+		const category: Category = await this.prisma.category
+			.findUnique({ where: { id: dto.category } })
+			.catch(handleErrorConstraintUnique);
 		const catNumber = category.code;
 		const sufix: number = Math.floor(Math.random() * 9999);
 
 		dto.code = `${1000001 + prodNumber}`;
 
-		const verificadorUm = this.criaDigitoVerificador(`${catNumber}${dto.code}${sufix}`);
-		const verificadorDois = this.criaDigitoVerificador(`${catNumber}${verificadorUm}${dto.code}${sufix}`);
+		const verificadorUm = this.createVerificatorDigit(
+			`${catNumber}${dto.code}${sufix}`,
+		);
+		const verificadorDois = this.createVerificatorDigit(
+			`${catNumber}${verificadorUm}${dto.code}${sufix}`,
+		);
 
 		dto.barcode = `${verificadorDois}${catNumber}${verificadorUm}${dto.code}${sufix}`;
 
@@ -105,8 +120,9 @@ export class ProductsService {
 		if (user.role != "SuperAdmin") {
 			console.log(user);
 		}
+
 		const product: Product = await this.prisma.product.findUnique({
-			where: { name: dto.productId },
+			where: { id: dto.productId },
 		});
 
 		if (!product) {
@@ -129,7 +145,7 @@ export class ProductsService {
 			},
 			product: {
 				connect: {
-					name: dto.productId,
+					id: dto.productId,
 				},
 			},
 		};
@@ -162,7 +178,7 @@ export class ProductsService {
 		const product: Product = await this.verifyIdAndReturnProduct(id);
 
 		return await this.prisma.favorite.findMany({
-			where: { productId: product.name },
+			where: { productId: product.id },
 			select: {
 				productId: true,
 				user: { select: { id: true, user: true } },

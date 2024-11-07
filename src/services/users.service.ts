@@ -20,7 +20,7 @@ export class UsersService {
 		createdAt: true,
 	};
 
-	constructor(private readonly prisma: PrismaService) { }
+	constructor(private readonly prisma: PrismaService) {}
 
 	async create(dto: CreateUserDto): Promise<User | void> {
 		const hashedPassword = await bcrypt.hash(dto.password, 7);

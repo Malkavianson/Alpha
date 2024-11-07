@@ -10,7 +10,7 @@ import { PrismaService } from "./prisma.service";
 
 @Injectable()
 export class CategoriesService {
-	constructor(private readonly prisma: PrismaService) { }
+	constructor(private readonly prisma: PrismaService) {}
 
 	async verifyIdAndReturnCategory(id: string): Promise<Category> {
 		const category: Category = await this.prisma.category.findUnique({
