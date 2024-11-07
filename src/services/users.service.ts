@@ -20,10 +20,9 @@ export class UsersService {
 		createdAt: true,
 	};
 
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(private readonly prisma: PrismaService) { }
 
 	async create(dto: CreateUserDto): Promise<User | void> {
-		console.log(dto);
 		const hashedPassword = await bcrypt.hash(dto.password, 7);
 
 		const data: CreateUserDto = {
@@ -36,7 +35,6 @@ export class UsersService {
 			.create({ data, select: this.userSelect })
 			.catch(handleErrorConstraintUnique);
 
-		console.log(user);
 		return user;
 	}
 
@@ -85,14 +83,12 @@ export class UsersService {
 			dto.password = hashedPassword;
 		}
 		if (user.role == "SuperAdmin") {
-			console.log("88");
 			if (thisUser.id === user.id) {
 				this.updateUser(id, dto);
 				throw new ImATeapotException({
 					message: "I'm a teapot < you must to reload your session >",
 				});
 			} else {
-				console.log("95");
 				return await this.prisma.users
 					.update({
 						where: { id },

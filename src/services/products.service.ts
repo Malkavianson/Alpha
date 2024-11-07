@@ -10,13 +10,21 @@ import {
 	UpdateProductDto,
 } from "../core";
 import { handleErrorConstraintUnique } from "../utils";
-import { Favorite, Product, User } from "./models";
+import { Category, Favorite, Product, User } from "./models";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "./prisma.service";
 
 @Injectable()
 export class ProductsService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(private readonly prisma: PrismaService) { }
+
+	criaDigitoVerificador(str: string) {
+		let sum = str.split('').map(Number).reduce((acc, num) => acc + num, 0);
+		while (sum >= 10) {
+			sum = sum.toString().split('').map(Number).reduce((acc, num) => acc + num, 0);
+		}
+		return sum;
+	}
 
 	async verifyNameAndReturnProduct(name: string): Promise<Product[]> {
 		const product: Product[] = await this.prisma.product.findMany({
@@ -58,6 +66,21 @@ export class ProductsService {
 		if (user.role != "SuperAdmin") {
 			throw new UnauthorizedException();
 		}
+
+		// Logica do código de barras:
+		// [categoria do produto - 4][digito verificador - 1][código do produto - 7][digito verificador - 1][numeros aleatórios - 4]
+
+		const prodNumber: number = await this.prisma.product.count().catch(handleErrorConstraintUnique);;
+		const category: Category = await this.prisma.category.findUnique({ where: { id: dto.category } }).catch(handleErrorConstraintUnique);
+		const catNumber = category.code;
+		const sufix: number = Math.floor(Math.random() * 9999);
+
+		dto.code = `${1000001 + prodNumber}`;
+
+		const verificadorUm = this.criaDigitoVerificador(`${catNumber}${dto.code}${sufix}`);
+		const verificadorDois = this.criaDigitoVerificador(`${catNumber}${verificadorUm}${dto.code}${sufix}`);
+
+		dto.barcode = `${verificadorDois}${catNumber}${verificadorUm}${dto.code}${sufix}`;
 
 		const data: Prisma.ProductCreateInput = {
 			name: dto.name,

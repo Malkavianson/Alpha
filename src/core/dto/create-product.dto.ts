@@ -38,13 +38,7 @@ export class CreateProductDto {
 	@Exclude()
 	code: string;
 
-	// Logica do código de barras:
-	// [codigo da empresa - 3][digito verificador - 1][categoria do produto - 3][código do produto - 6][digito verificador - 1][numeros aleatórios - 4]
-	@IsString()
-	@ApiProperty({
-		description: "product Barcode",
-		example: "12390010023485678",
-	})
+	@Exclude()
 	barcode: string;
 
 	@IsUUID()

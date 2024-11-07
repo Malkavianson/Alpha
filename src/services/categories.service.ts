@@ -10,7 +10,7 @@ import { PrismaService } from "./prisma.service";
 
 @Injectable()
 export class CategoriesService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(private readonly prisma: PrismaService) { }
 
 	async verifyIdAndReturnCategory(id: string): Promise<Category> {
 		const category: Category = await this.prisma.category.findUnique({
@@ -28,8 +28,10 @@ export class CategoriesService {
 		if (user.role != "SuperAdmin") {
 			throw new UnauthorizedException();
 		}
-		const catNumber = await this.prisma.category.count();
+
+		const catNumber: number = await this.prisma.category.count();
 		dto.code = `${1001 + catNumber}`;
+
 		return await this.prisma.category
 			.create({ data: dto })
 			.catch(handleErrorConstraintUnique);
