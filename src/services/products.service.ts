@@ -16,7 +16,7 @@ import { PrismaService } from "./prisma.service";
 
 @Injectable()
 export class ProductsService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(private readonly prisma: PrismaService) { }
 
 	createVerificatorDigit(str: string) {
 		let sum = str
@@ -52,6 +52,18 @@ export class ProductsService {
 
 		if (!product) {
 			throw new NotFoundException(`Id: '${id}' not found`);
+		}
+
+		return product;
+	}
+
+	async verifyBarcodeAndReturnProduct(barcode: string): Promise<Product> {
+		const product: Product = await this.prisma.product.findUnique({
+			where: { barcode },
+		});
+
+		if (!product) {
+			throw new NotFoundException(`Id: '${barcode}' not found`);
 		}
 
 		return product;
@@ -167,8 +179,12 @@ export class ProductsService {
 		return products;
 	}
 
-	async findOne(id: string): Promise<Product> {
+	async findOneById(id: string): Promise<Product> {
 		return await this.verifyIdAndReturnProduct(id);
+	}
+
+	async findOneByBarcode(barcode: string): Promise<Product> {
+		return await this.verifyBarcodeAndReturnProduct(barcode);
 	}
 
 	async findAllFavUsersById(id: string, user: User): Promise<Favorite[]> {

@@ -22,7 +22,7 @@ import { LoggedUser } from "../decorators";
 @ApiTags("Products")
 @Controller("products")
 export class ProductsController {
-	constructor(private readonly productsService: ProductsService) {}
+	constructor(private readonly productsService: ProductsService) { }
 
 	@Post()
 	@UseGuards(AuthGuard())
@@ -63,7 +63,7 @@ export class ProductsController {
 		summary: "Search one Product by ID",
 	})
 	async findOne(@Param("id") id: string): Promise<Product> {
-		return await this.productsService.findOne(id);
+		return await this.productsService.findOneById(id);
 	}
 
 	@Get(":id/fav")

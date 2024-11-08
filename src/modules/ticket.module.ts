@@ -2,7 +2,7 @@ import { PassportModule } from "@nestjs/passport";
 import { Module } from "@nestjs/common";
 import { PrismaModule } from "./prisma.module";
 import { TicketController } from "../controllers";
-import { TicketService } from "../services";
+import { ProductsService, TicketService } from "../services";
 
 @Module({
 	imports: [
@@ -10,8 +10,8 @@ import { TicketService } from "../services";
 		PassportModule.register({ defaultStrategy: "jwt" }),
 	],
 	controllers: [TicketController],
-	providers: [TicketService],
+	providers: [TicketService, ProductsService],
 })
-class TicketModule {}
+class TicketModule { }
 
 export { TicketModule };
