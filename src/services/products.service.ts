@@ -16,7 +16,7 @@ import { PrismaService } from "./prisma.service";
 
 @Injectable()
 export class ProductsService {
-	constructor(private readonly prisma: PrismaService) { }
+	constructor(private readonly prisma: PrismaService) {}
 
 	createVerificatorDigit(str: string) {
 		let sum = str

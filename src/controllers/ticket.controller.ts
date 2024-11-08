@@ -24,17 +24,7 @@ import { TicketService, User, Ticket, Product } from "../services";
 @ApiBearerAuth()
 @Controller("ticket")
 class TicketController {
-	constructor(private readonly TicketService: TicketService) { }
-
-	@Post()
-	@ApiOperation({
-		summary: "Create a new ticket",
-		description:
-			"This is the ticket list, you must to get your token before open a new ticket;",
-	})
-	async create(@Body() dto: CreateTicketDto): Promise<Ticket | void> {
-		return await this.TicketService.create(dto);
-	}
+	constructor(private readonly TicketService: TicketService) {}
 
 	@Get()
 	@ApiOperation({
@@ -52,12 +42,22 @@ class TicketController {
 		return await this.TicketService.findOneById(id);
 	}
 
-	@Get(":barcode")
+	@Get("barcode/:barcode")
 	@ApiOperation({
 		summary: "Find one Ticket by Barcode",
 	})
 	async findByBarcode(@Param("barcode") barcode: string): Promise<Ticket> {
 		return await this.TicketService.findOneByBarcode(barcode);
+	}
+
+	@Post()
+	@ApiOperation({
+		summary: "Create a new ticket",
+		description:
+			"This is the ticket list, you must to get your token before open a new ticket;",
+	})
+	async create(@Body() dto: CreateTicketDto): Promise<Ticket | void> {
+		return await this.TicketService.create(dto);
 	}
 
 	@Patch(":id")
@@ -82,7 +82,7 @@ class TicketController {
 		return await this.TicketService.changeStatus(id, user);
 	}
 
-	@Patch("quantity/:id/increase")
+	@Patch("quantity/:barcode/increase")
 	@ApiOperation({
 		summary: "increase product quantity",
 	})
@@ -90,10 +90,13 @@ class TicketController {
 		@Param("barcode") barcode: string,
 		@LoggedUser() user: User,
 	): Promise<Product | void> {
-		return await this.TicketService.increaseProductCountByBarcode(barcode, user);
+		return await this.TicketService.increaseProductCountByBarcode(
+			barcode,
+			user,
+		);
 	}
 
-	@Patch("quantity/:id/decrease")
+	@Patch("quantity/:barcode/decrease")
 	@ApiOperation({
 		summary: "decrease product quantity",
 	})
@@ -101,7 +104,10 @@ class TicketController {
 		@Param("barcode") barcode: string,
 		@LoggedUser() user: User,
 	): Promise<Product | void> {
-		return await this.TicketService.decreaseProductCountByBarcode(barcode, user);
+		return await this.TicketService.decreaseProductCountByBarcode(
+			barcode,
+			user,
+		);
 	}
 
 	@Delete(":id")

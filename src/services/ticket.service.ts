@@ -12,7 +12,10 @@ import { ProductsService } from "./products.service";
 
 @Injectable()
 class TicketService {
-	constructor(private readonly prisma: PrismaService, private readonly productService: ProductsService) { }
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly productService: ProductsService,
+	) {}
 
 	async verifyIdAndReturnTicket(id: string): Promise<Ticket> {
 		const ticket: Ticket = await this.prisma.ticket.findUnique({
@@ -27,23 +30,28 @@ class TicketService {
 	}
 
 	async verifyBarcodeAndReturnTicket(barcode: string): Promise<Ticket> {
-
-		const product: Product = await this.productService.findOneByBarcode(barcode);
+		const product: Product = await this.productService.findOneByBarcode(
+			barcode,
+		);
 
 		if (!product) {
-			throw new NotFoundException(`Ticket barcode:'${barcode}' not found`);
+			throw new NotFoundException(
+				`Product barcode:'${barcode}' not found`,
+			);
 		}
 
 		const productName = product.name;
 
 		const ticket: Ticket = await this.prisma.ticket.findUnique({
 			where: {
-				productName: productName,
+				productName,
 			},
 		});
 
 		if (!ticket) {
-			throw new NotFoundException(`Ticket barcode:'${barcode}' not found`);
+			throw new NotFoundException(
+				`Ticket barcode:'${barcode}' not found`,
+			);
 		}
 
 		return ticket;
@@ -55,13 +63,13 @@ class TicketService {
 				connect: {
 					name: dto.product,
 				},
-			}
-		}
+			},
+		};
 		return await this.prisma.ticket
 			.create({
 				data,
 			})
-		// .catch(handleErrorConstraintUnique);
+			.catch(handleErrorConstraintUnique);
 	}
 
 	async findAll(): Promise<Ticket[]> {
@@ -100,34 +108,48 @@ class TicketService {
 			.catch(handleErrorConstraintUnique);
 	}
 
-	async increaseProductCountByBarcode(barcode: string, user: User): Promise<Ticket> {
+	async increaseProductCountByBarcode(
+		barcode: string,
+		user: User,
+	): Promise<Ticket> {
 		if (user.role != "SuperAdmin") {
 			throw new UnauthorizedException();
 		}
+
+		const product = await this.productService.verifyBarcodeAndReturnProduct(
+			barcode,
+		);
+
+		const quantity = product.quantity + 1;
+
+		return await this.prisma.product
+			.update({ where: { id: product.id }, data: { quantity } })
+			.catch(handleErrorConstraintUnique);
+	}
+
+	async decreaseProductCountByBarcode(
+		barcode: string,
+		user: User,
+	): Promise<Ticket> {
+		if (user.role != "SuperAdmin") {
+			throw new UnauthorizedException();
+		}
+		const product = await this.productService.verifyBarcodeAndReturnProduct(
+			barcode,
+		);
+
+		const quantity = product.quantity - 1;
+
 		const ticket = await this.verifyBarcodeAndReturnTicket(barcode);
 		const printed = ticket.printed + 1;
-		const quantity = ticket.product.quantity + 1;
 
 		await this.prisma.ticket
 			.update({ where: { id: ticket.id }, data: { printed } })
 			.catch(handleErrorConstraintUnique);
 
 		return await this.prisma.product
-			.update({ where: { id: ticket.product.id }, data: { quantity } })
+			.update({ where: { id: product.id }, data: { quantity } })
 			.catch(handleErrorConstraintUnique);
-	}
-
-	async decreaseProductCountByBarcode(barcode: string, user: User): Promise<Ticket> {
-		if (user.role != "SuperAdmin") {
-			throw new UnauthorizedException();
-		}
-		const ticket = await this.verifyBarcodeAndReturnTicket(barcode);
-		const quantity = ticket.product.quantity - 1;
-
-		return await this.prisma.product
-			.update({ where: { id: ticket.product.id }, data: { quantity } })
-			.catch(handleErrorConstraintUnique);
-
 	}
 
 	async remove(id: string, user: User): Promise<Ticket> {
