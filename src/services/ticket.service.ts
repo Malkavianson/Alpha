@@ -72,27 +72,36 @@ class TicketService {
 			.catch(handleErrorConstraintUnique);
 	}
 
-	async findAll(): Promise<Ticket[]> {
+	async findAll(user: User): Promise<Ticket[]> {
+		if (user.role != "SuperAdmin") {
+			throw new UnauthorizedException();
+		}
+
 		return await this.prisma.ticket.findMany();
 	}
 
-	async findOneById(id: string): Promise<Ticket> {
+	async findAllActives(user: User): Promise<Ticket[]> {
+		if (user.role != "SuperAdmin") {
+			throw new UnauthorizedException();
+		}
+
+		return await this.prisma.ticket.findMany({
+			where: {
+				status: true,
+			},
+		});
+	}
+
+	async findOneById(id: string, user: User): Promise<Ticket> {
+		if (user.role != "SuperAdmin") {
+			throw new UnauthorizedException();
+		}
+
 		return await this.verifyIdAndReturnTicket(id);
 	}
 
 	async findOneByBarcode(barcode: string): Promise<Ticket> {
 		return await this.verifyBarcodeAndReturnTicket(barcode);
-	}
-
-	async update(id: string, user: User): Promise<Ticket> {
-		if (user.role != "SuperAdmin") {
-			throw new UnauthorizedException();
-		}
-		const ticket = await this.verifyIdAndReturnTicket(id);
-
-		return await this.prisma.ticket
-			.update({ where: { id }, data: { printed: ticket.printed++ } })
-			.catch(handleErrorConstraintUnique);
 	}
 
 	async changeStatus(id: string, user: User): Promise<Ticket> {

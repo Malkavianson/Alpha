@@ -26,20 +26,31 @@ import { TicketService, User, Ticket, Product } from "../services";
 class TicketController {
 	constructor(private readonly TicketService: TicketService) {}
 
-	@Get()
+	@Get("all")
 	@ApiOperation({
 		summary: "List all Tickets",
 	})
-	async findAll(): Promise<Ticket[]> {
-		return await this.TicketService.findAll();
+	async findAll(@LoggedUser() user: User): Promise<Ticket[]> {
+		return await this.TicketService.findAll(user);
+	}
+
+	@Get("actives")
+	@ApiOperation({
+		summary: "List all Tickets",
+	})
+	async findAllActives(@LoggedUser() user: User): Promise<Ticket[]> {
+		return await this.TicketService.findAllActives(user);
 	}
 
 	@Get(":id")
 	@ApiOperation({
 		summary: "Find one Ticket by id",
 	})
-	async findById(@Param("id") id: string): Promise<Ticket> {
-		return await this.TicketService.findOneById(id);
+	async findById(
+		@Param("id") id: string,
+		@LoggedUser() user: User,
+	): Promise<Ticket> {
+		return await this.TicketService.findOneById(id, user);
 	}
 
 	@Get("barcode/:barcode")
@@ -58,17 +69,6 @@ class TicketController {
 	})
 	async create(@Body() dto: CreateTicketDto): Promise<Ticket | void> {
 		return await this.TicketService.create(dto);
-	}
-
-	@Patch(":id")
-	@ApiOperation({
-		summary: "Patch Ticket information",
-	})
-	async update(
-		@Param("id") id: string,
-		@LoggedUser() user: User,
-	): Promise<Ticket | void> {
-		return await this.TicketService.update(id, user);
 	}
 
 	@Patch(":id/status")
