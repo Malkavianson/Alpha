@@ -5,11 +5,10 @@ import {
 	AuthModule,
 	UsersModule,
 	CategoriesModule,
-	// OrdersModule,
 	ProductsModule,
 	TicketModule,
-	// SeedModule,
 	HomeModule,
+	LogsModule,
 } from "./modules";
 
 @Module({
@@ -19,9 +18,8 @@ import {
 		TicketModule,
 		ProductsModule,
 		CategoriesModule,
-		// OrdersModule,
-		// SeedModule,
 		HomeModule,
+		LogsModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

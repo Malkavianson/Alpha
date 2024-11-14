@@ -6,3 +6,4 @@ export * from "./products.module";
 export * from "./ticket.module";
 export * from "./users.module";
 export * from "./home.module";
+export * from "./logs.module";

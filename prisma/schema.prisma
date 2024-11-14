@@ -19,6 +19,7 @@ model Users {
   name      String
   password  String
   favorites Favorite[]
+  log       Log[]
   createdAt DateTime   @default(now()) @map("created_at")
 
   @@map("users")
@@ -34,6 +35,20 @@ model Favorite {
 
   @@unique([userId, productId])
   @@map("favorite")
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  username  String
+  action    String
+  element   String
+  before    String
+  after     String
+  createdAt DateTime @default(now()) @map("created_at")
+  user      Users    @relation(fields: [userId], references: [id], onDelete: NoAction)
+  userId    String   @map("user_id")
+
+  @@map("log")
 }
 
 model Category {

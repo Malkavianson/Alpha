@@ -4,3 +4,4 @@ export * from "./product.entity";
 export * from "./ticket.entity";
 export * from "./user.entity";
 export * from "./home.entity";
+export * from "./log.entity";
