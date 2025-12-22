@@ -2,14 +2,14 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "../db.pdf"
+}
 
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
-}
-generator erd {
-  provider = "prisma-erd-generator"
-  output   = "../db.pdf"
 }
 
 model Users {
@@ -41,6 +41,21 @@ model AuditLog {
   @@map("audit_log")
 }
 
+model Company {
+  id        String   @id @default(uuid())
+  name      String
+  cnpj      String?
+  createdAt DateTime @default(now())
+
+  products    Product[]
+  clients     Client[]
+  suppliers   Supplier[]
+  salesOrders SalesOrder[]
+  nfe         Nfe[]
+
+  @@map("company")
+}
+
 model Category {
   id        String   @id @default(uuid())
   name      String   @unique
@@ -56,16 +71,20 @@ model Product {
   id          String   @id @default(uuid())
   name        String
   description String?
-  sku         String   @unique
-  alias       String   @unique
+  sku         String?
+  alias       String?
   barcode     String?
-  unit        String
+  unit        String?
   active      Boolean  @default(true)
   createdAt   DateTime @default(now()) @map("created_at")
 
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   categoryId String?   @map("category_id")
 
+  company   Company @relation(fields: [companyId], references: [id])
+  companyId String
+
+  orderItems  SalesOrderItem[]
   favorites   Favorite[]
   nfeItems    NfeItem[]
   stockEvents StockMovement[]
@@ -97,10 +116,13 @@ model Supplier {
   cpf           String?
   ie            String?
   im            String?
-  address       String
+  address       String?
   phone         String?
   email         String?
   createdAt     DateTime @default(now()) @map("created_at")
+
+  company   Company @relation(fields: [companyId], references: [id])
+  companyId String
 
   nfe             Nfe[]
   products        ProductSupplier[]
@@ -111,14 +133,18 @@ model Supplier {
 
 model Client {
   id            String   @id @default(uuid())
-  type          String
+  type          String?
   corporateName String
   fantasyName   String?
   cnpj          String?
   cpf           String?
-  address       String
+  address       String?
   createdAt     DateTime @default(now()) @map("created_at")
 
+  company   Company @relation(fields: [companyId], references: [id])
+  companyId String
+
+  orders             SalesOrder[]
   nfe                Nfe[]
   accountsReceivable AccountReceivable[]
 
@@ -145,16 +171,16 @@ model Nfe {
   id            String    @id @default(uuid())
   accessKey     String    @unique @map("chave_acesso")
   number        String
-  series        String
-  model         String
-  type          String
-  nature        String    @map("natureza_operacao")
+  series        String?
+  model         String?
+  type          String?
+  nature        String?   @map("natureza_operacao")
   issueDate     DateTime  @map("data_emissao")
   entryExitDate DateTime? @map("data_entrada_saida")
   totalProducts Float     @map("valor_produtos")
   totalValue    Float     @map("valor_total")
   xml           String?
-  status        String
+  status        String?
   createdAt     DateTime  @default(now()) @map("created_at")
 
   supplier   Supplier? @relation(fields: [supplierId], references: [id])
@@ -163,6 +189,10 @@ model Nfe {
   client   Client? @relation(fields: [clientId], references: [id])
   clientId String? @map("client_id")
 
+  company   Company @relation(fields: [companyId], references: [id])
+  companyId String
+
+  salesOrders        SalesOrder[]
   items              NfeItem[]
   accountPayables    AccountPayable[]
   accountReceivables AccountReceivable[]
@@ -172,12 +202,12 @@ model Nfe {
 
 model NfeItem {
   id          String   @id @default(uuid())
-  description String
-  quantity    Float
+  description String?
+  quantity    Float?
   unitValue   Float    @map("valor_unitario")
   totalValue  Float    @map("valor_total")
-  ncm         String
-  cfop        String
+  ncm         String?
+  cfop        String?
   cest        String?
   createdAt   DateTime @default(now()) @map("created_at")
 
@@ -194,10 +224,10 @@ model NfeItem {
 
 model NfeTax {
   id        String   @id @default(uuid())
-  type      String
-  baseValue Float
-  rate      Float
-  value     Float
+  type      String?
+  baseValue Float?
+  rate      Float?
+  value     Float?
   createdAt DateTime @default(now()) @map("created_at")
 
   item   NfeItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
@@ -208,31 +238,31 @@ model NfeTax {
 
 model StockMovement {
   id          String   @id @default(uuid())
-  type        String
-  origin      String
+  type        String?
+  origin      String?
   quantity    Float
   referenceId String?
-  createdAt   DateTime @default(now()) @map("created_at")
+  createdAt   DateTime @default(now())
 
   product   Product @relation(fields: [productId], references: [id])
-  productId String  @map("product_id")
+  productId String
 
   @@map("stock_movement")
 }
 
 model AccountPayable {
   id          String   @id @default(uuid())
-  description String
+  description String?
   value       Float
-  dueDate     DateTime @map("data_vencimento")
-  status      String
-  createdAt   DateTime @default(now()) @map("created_at")
+  dueDate     DateTime
+  status      String?  @default("PENDING")
+  createdAt   DateTime @default(now())
 
   supplier   Supplier @relation(fields: [supplierId], references: [id])
-  supplierId String   @map("supplier_id")
+  supplierId String
 
   nfe   Nfe?    @relation(fields: [nfeId], references: [id])
-  nfeId String? @map("nfe_id")
+  nfeId String?
 
   payments Payment[]
 
@@ -240,31 +270,64 @@ model AccountPayable {
 }
 
 model Payment {
-  id          String   @id @default(uuid())
-  valuePaid   Float    @map("valor_pago")
-  paymentDate DateTime @map("data_pagamento")
-  method      String
-  createdAt   DateTime @default(now()) @map("created_at")
+  id          String    @id @default(uuid())
+  valuePaid   Float?
+  paymentDate DateTime?
+  method      String?
+  createdAt   DateTime  @default(now())
 
   account          AccountPayable @relation(fields: [accountPayableId], references: [id], onDelete: Cascade)
-  accountPayableId String         @map("account_payable_id")
+  accountPayableId String
 
   @@map("payment")
 }
 
 model AccountReceivable {
-  id          String   @id @default(uuid())
-  description String
+  id          String    @id @default(uuid())
+  description String?
   value       Float
-  dueDate     DateTime
-  status      String
-  createdAt   DateTime @default(now()) @map("created_at")
+  dueDate     DateTime?
+  status      String?   @default("PENDING")
+  createdAt   DateTime  @default(now())
 
-  client   Client @relation(fields: [clientId], references: [id])
-  clientId String @map("client_id")
+  client   Client? @relation(fields: [clientId], references: [id])
+  clientId String?
 
   nfe   Nfe?    @relation(fields: [nfeId], references: [id])
-  nfeId String? @map("nfe_id")
+  nfeId String?
 
   @@map("account_receivable")
+}
+
+model SalesOrder {
+  id          String   @id @default(uuid())
+  description String?
+  status      String?  @default("DRAFT")
+  createdAt   DateTime @default(now())
+
+  company   Company @relation(fields: [companyId], references: [id])
+  companyId String
+
+  client   Client? @relation(fields: [clientId], references: [id])
+  clientId String?
+
+  items SalesOrderItem[]
+  nfe   Nfe[]
+
+  @@map("sales_order")
+}
+
+model SalesOrderItem {
+  id        String   @id @default(uuid())
+  quantity  Float
+  unitValue Float
+  createdAt DateTime @default(now())
+
+  order   SalesOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String
+
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?
+
+  @@map("sales_order_item")
 }
