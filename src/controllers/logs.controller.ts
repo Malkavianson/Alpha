@@ -1,11 +1,12 @@
 import { Controller, Get, Post, Body, Param, UseGuards } from "@nestjs/common";
 import { LogsService } from "../services/logs.service";
 import { AuthGuard } from "@nestjs/passport";
-import { ApiBearerAuth, ApiOperation } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { LoggedUser } from "src/decorators";
 import { Log, User } from "src/services";
 
 @Controller("logs")
+@ApiTags("LOGS")
 export class LogsController {
 	constructor(private readonly logsService: LogsService) {}
 
