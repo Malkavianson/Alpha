@@ -2,89 +2,269 @@ generator client {
   provider = "prisma-client-js"
 }
 
+
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
-
 generator erd {
   provider = "prisma-erd-generator"
   output   = "../db.pdf"
 }
 
 model Users {
-  id        String     @id @default(uuid())
-  role      String     @default("user")
-  user      String     @unique
+  id        String   @id @default(uuid())
+  role      String   @default("user")
+  user      String   @unique
   name      String
   password  String
+  createdAt DateTime @default(now()) @map("created_at")
+
   favorites Favorite[]
-  log       Log[]
-  createdAt DateTime   @default(now()) @map("created_at")
+  auditLogs AuditLog[]
 
   @@map("users")
 }
 
-model Favorite {
+model AuditLog {
   id        String   @id @default(uuid())
-  createdAt DateTime @default(now()) @map("created_at")
-  user      Users    @relation(fields: [userId], references: [id], onDelete: NoAction)
-  userId    String   @map("user_id")
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId String   @map("product_name")
-
-  @@unique([userId, productId])
-  @@map("favorite")
-}
-
-model Log {
-  id        String   @id @default(uuid())
-  username  String
+  entity    String
+  entityId  String
   action    String
-  element   String
-  before    String
-  after     String
+  before    String?
+  after     String?
   createdAt DateTime @default(now()) @map("created_at")
-  user      Users    @relation(fields: [userId], references: [id], onDelete: NoAction)
-  userId    String   @map("user_id")
 
-  @@map("log")
+  user   Users  @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+
+  @@map("audit_log")
 }
 
 model Category {
-  id        String    @id @default(uuid())
-  name      String    @unique
-  code      String    @unique
-  products  Product[]
-  createdAt DateTime  @default(now()) @map("created_at")
+  id        String   @id @default(uuid())
+  name      String   @unique
+  code      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  products Product[]
 
   @@map("category")
 }
 
 model Product {
-  id          String     @id @default(uuid())
-  name        String     @unique
-  description String
-  price       Float
-  quantity    Float      @default(0)
-  code        String     @unique
-  barcode     String     @unique
-  category    Category?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  categoryId  String?    @map("category_id")
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  sku         String   @unique
+  alias       String   @unique
+  barcode     String?
+  unit        String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  categoryId String?   @map("category_id")
+
   favorites   Favorite[]
-  ticket      Ticket[]
-  createdAt   DateTime   @default(now()) @map("created_at")
+  nfeItems    NfeItem[]
+  stockEvents StockMovement[]
+  suppliers   ProductSupplier[]
 
   @@map("product")
 }
 
-model Ticket {
+model Favorite {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user   Users  @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String  @map("product_id")
+
+  @@unique([userId, productId])
+  @@map("favorite")
+}
+
+model Supplier {
+  id            String   @id @default(uuid())
+  type          String
+  corporateName String   @map("razao_social")
+  fantasyName   String?  @map("nome_fantasia")
+  cnpj          String?
+  cpf           String?
+  ie            String?
+  im            String?
+  address       String
+  phone         String?
+  email         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  nfe             Nfe[]
+  products        ProductSupplier[]
+  accountsPayable AccountPayable[]
+
+  @@map("supplier")
+}
+
+model Client {
+  id            String   @id @default(uuid())
+  type          String
+  corporateName String
+  fantasyName   String?
+  cnpj          String?
+  cpf           String?
+  address       String
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  nfe                Nfe[]
+  accountsReceivable AccountReceivable[]
+
+  @@map("client")
+}
+
+model ProductSupplier {
+  id           String   @id @default(uuid())
+  supplierCode String?
+  supplierDesc String?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String  @map("product_id")
+
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  supplierId String   @map("supplier_id")
+
+  @@unique([productId, supplierId])
+  @@map("product_supplier")
+}
+
+model Nfe {
+  id            String    @id @default(uuid())
+  accessKey     String    @unique @map("chave_acesso")
+  number        String
+  series        String
+  model         String
+  type          String
+  nature        String    @map("natureza_operacao")
+  issueDate     DateTime  @map("data_emissao")
+  entryExitDate DateTime? @map("data_entrada_saida")
+  totalProducts Float     @map("valor_produtos")
+  totalValue    Float     @map("valor_total")
+  xml           String?
+  status        String
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
+  supplierId String?   @map("supplier_id")
+
+  client   Client? @relation(fields: [clientId], references: [id])
+  clientId String? @map("client_id")
+
+  items              NfeItem[]
+  accountPayables    AccountPayable[]
+  accountReceivables AccountReceivable[]
+
+  @@map("nfe")
+}
+
+model NfeItem {
   id          String   @id @default(uuid())
-  printed     Float    @default(0)
-  status      Boolean  @default(true)
-  product     Product  @relation(fields: [productName], references: [name], onDelete: NoAction)
-  productName String   @unique @map("product_name")
+  description String
+  quantity    Float
+  unitValue   Float    @map("valor_unitario")
+  totalValue  Float    @map("valor_total")
+  ncm         String
+  cfop        String
+  cest        String?
   createdAt   DateTime @default(now()) @map("created_at")
 
-  @@map("ticket")
+  nfe   Nfe    @relation(fields: [nfeId], references: [id], onDelete: Cascade)
+  nfeId String @map("nfe_id")
+
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?  @map("product_id")
+
+  taxes NfeTax[]
+
+  @@map("nfe_item")
+}
+
+model NfeTax {
+  id        String   @id @default(uuid())
+  type      String
+  baseValue Float
+  rate      Float
+  value     Float
+  createdAt DateTime @default(now()) @map("created_at")
+
+  item   NfeItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemId String  @map("item_id")
+
+  @@map("nfe_tax")
+}
+
+model StockMovement {
+  id          String   @id @default(uuid())
+  type        String
+  origin      String
+  quantity    Float
+  referenceId String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String  @map("product_id")
+
+  @@map("stock_movement")
+}
+
+model AccountPayable {
+  id          String   @id @default(uuid())
+  description String
+  value       Float
+  dueDate     DateTime @map("data_vencimento")
+  status      String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  supplierId String   @map("supplier_id")
+
+  nfe   Nfe?    @relation(fields: [nfeId], references: [id])
+  nfeId String? @map("nfe_id")
+
+  payments Payment[]
+
+  @@map("account_payable")
+}
+
+model Payment {
+  id          String   @id @default(uuid())
+  valuePaid   Float    @map("valor_pago")
+  paymentDate DateTime @map("data_pagamento")
+  method      String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  account          AccountPayable @relation(fields: [accountPayableId], references: [id], onDelete: Cascade)
+  accountPayableId String         @map("account_payable_id")
+
+  @@map("payment")
+}
+
+model AccountReceivable {
+  id          String   @id @default(uuid())
+  description String
+  value       Float
+  dueDate     DateTime
+  status      String
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  client   Client @relation(fields: [clientId], references: [id])
+  clientId String @map("client_id")
+
+  nfe   Nfe?    @relation(fields: [nfeId], references: [id])
+  nfeId String? @map("nfe_id")
+
+  @@map("account_receivable")
 }
