@@ -31,7 +31,7 @@ export class LogsService {
 	}
 
 	async findOne(id: string, user: User) {
-		console.log(user);
+		console.log(user, id);
 		const log: Log = {
 			username: user.user,
 			user: user,
