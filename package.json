@@ -21,7 +21,7 @@
 	"dependencies": {
 		"@mermaid-js/mermaid-cli": "^9.1.6",
 		"@nestjs/class-validator": "^0.13.4",
-		"@nestjs/common": "^9.0.0",
+		"@nestjs/common": "^10.4.16",
 		"@nestjs/core": "^9.0.0",
 		"@nestjs/jwt": "^9.0.0",
 		"@nestjs/passport": "^9.0.0",
