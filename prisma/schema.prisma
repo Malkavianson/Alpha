@@ -33,6 +33,9 @@ model Users {
   role   UserRole @relation(fields: [roleId], references: [id])
   roleId String
 
+  company   Company? @relation(fields: [companyId], references: [id])
+  companyId String?
+
   favorites Favorite[]
   auditLogs AuditLog[]
 }
@@ -74,8 +77,8 @@ model Company {
   cnpj      String?
   createdAt DateTime @default(now())
 
-  products  Product[]
   suppliers Supplier[]
+  Users     Users[]
 }
 
 //////////////////////////////////////
@@ -100,9 +103,6 @@ model Product {
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
 
-  company   Company? @relation(fields: [companyId], references: [id])
-  companyId String?
-
   category   Category? @relation(fields: [categoryId], references: [id])
   categoryId String?
 
@@ -110,8 +110,6 @@ model Product {
   stockBalance   StockBalance?
 
   nfeProduct NfeItem[]
-
-  productSuppliers ProductSupplier[]
 
   favorites Favorite[]
 }
@@ -154,26 +152,9 @@ model Supplier {
   companyId String
 
   nfe             Nfe[]
-  products        ProductSupplier[]
   accountsPayable AccountPayable[]
 
   @@map("supplier")
-}
-
-model ProductSupplier {
-  id           String   @id @default(uuid())
-  supplierCode String?
-  supplierDesc String?
-  createdAt    DateTime @default(now()) @map("created_at")
-
-  product   Product @relation(fields: [productId], references: [id])
-  productId String  @map("product_id")
-
-  supplier   Supplier @relation(fields: [supplierId], references: [id])
-  supplierId String   @map("supplier_id")
-
-  @@unique([productId, supplierId])
-  @@map("product_supplier")
 }
 
 //////////////////////////////////////
