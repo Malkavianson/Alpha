@@ -12,34 +12,61 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+//////////////////////////////////////
+// BASE / CONTROLE
+//////////////////////////////////////
+
+model UserRole {
+  id    String  @id @default(uuid())
+  code  String  @unique
+  name  String
+  users Users[]
+}
+
 model Users {
   id        String   @id @default(uuid())
-  role      String   @default("user")
   user      String   @unique
   name      String
   password  String
-  createdAt DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now())
+
+  role   UserRole @relation(fields: [roleId], references: [id])
+  roleId String
 
   favorites Favorite[]
   auditLogs AuditLog[]
+}
 
-  @@map("users")
+//////////////////////////////////////
+// AUDITORIA FRAGMENTADA
+//////////////////////////////////////
+
+model AuditAction {
+  id   String     @id @default(uuid())
+  code String     @unique
+  name String
+  logs AuditLog[]
 }
 
 model AuditLog {
   id        String   @id @default(uuid())
-  entity    String
-  entityId  String
-  action    String
-  before    String?
-  after     String?
-  createdAt DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now())
+
+  entity   String
+  entityId String
+  before   String?
+  after    String?
+
+  action   AuditAction @relation(fields: [actionId], references: [id])
+  actionId String
 
   user   Users  @relation(fields: [userId], references: [id])
-  userId String @map("user_id")
-
-  @@map("audit_log")
+  userId String
 }
+
+//////////////////////////////////////
+// EMPRESA
+//////////////////////////////////////
 
 model Company {
   id        String   @id @default(uuid())
@@ -52,59 +79,89 @@ model Company {
   suppliers   Supplier[]
   salesOrders SalesOrder[]
   nfe         Nfe[]
-
-  @@map("company")
 }
 
+//////////////////////////////////////
+// PRODUTOS / ESTOQUE
+//////////////////////////////////////
+
 model Category {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  code      String   @unique
-  createdAt DateTime @default(now()) @map("created_at")
+  id   String @id @default(uuid())
+  name String
+  code String @unique
 
   products Product[]
-
-  @@map("category")
 }
 
 model Product {
   id          String   @id @default(uuid())
   name        String
-  description String?
   sku         String?
-  alias       String?
   barcode     String?
-  unit        String?
+  unit        String?  // unidade de medida
+  description String?
   active      Boolean  @default(true)
-  createdAt   DateTime @default(now()) @map("created_at")
-
-  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  categoryId String?   @map("category_id")
+  createdAt   DateTime @default(now())
 
   company   Company @relation(fields: [companyId], references: [id])
   companyId String
 
-  orderItems  SalesOrderItem[]
-  favorites   Favorite[]
-  nfeItems    NfeItem[]
-  stockEvents StockMovement[]
-  suppliers   ProductSupplier[]
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId String?
 
-  @@map("product")
+
+  stockMovements StockMovement[]
+  stockBalance   StockBalance?
+
+  nfeProduct NfeItem[]
+
+  productSuppliers ProductSupplier[]
+
+  salesOrderItems SalesOrderItem[]
+
+  favorites Favorite[]
 }
 
-model Favorite {
+model StockMovementType {
+  id   String @id @default(uuid())
+  code String @unique
+  name String
+
+  stockMovements StockMovement[]
+}
+
+model StockMovementOrigin {
+  id   String @id @default(uuid())
+  code String @unique
+  name String
+
+  stockMovements StockMovement[]
+}
+
+model StockMovement {
   id        String   @id @default(uuid())
-  createdAt DateTime @default(now()) @map("created_at")
+  quantity  Float
+  createdAt DateTime @default(now())
 
-  user   Users  @relation(fields: [userId], references: [id])
-  userId String @map("user_id")
+  type   StockMovementType @relation(fields: [typeId], references: [id])
+  typeId String
 
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId String  @map("product_id")
+  origin   StockMovementOrigin @relation(fields: [originId], references: [id])
+  originId String
 
-  @@unique([userId, productId])
-  @@map("favorite")
+  referenceId String?
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+}
+
+model StockBalance {
+  id        String   @id @default(uuid())
+  quantity  Float
+  updatedAt DateTime @updatedAt
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String  @unique
 }
 
 model Supplier {
@@ -131,26 +188,6 @@ model Supplier {
   @@map("supplier")
 }
 
-model Client {
-  id            String   @id @default(uuid())
-  type          String?
-  corporateName String
-  fantasyName   String?
-  cnpj          String?
-  cpf           String?
-  address       String?
-  createdAt     DateTime @default(now()) @map("created_at")
-
-  company   Company @relation(fields: [companyId], references: [id])
-  companyId String
-
-  orders             SalesOrder[]
-  nfe                Nfe[]
-  accountsReceivable AccountReceivable[]
-
-  @@map("client")
-}
-
 model ProductSupplier {
   id           String   @id @default(uuid())
   supplierCode String?
@@ -167,143 +204,48 @@ model ProductSupplier {
   @@map("product_supplier")
 }
 
-model Nfe {
-  id            String    @id @default(uuid())
-  accessKey     String    @unique @map("chave_acesso")
-  number        String
-  series        String?
-  model         String?
-  type          String?
-  nature        String?   @map("natureza_operacao")
-  issueDate     DateTime  @map("data_emissao")
-  entryExitDate DateTime? @map("data_entrada_saida")
-  totalProducts Float     @map("valor_produtos")
-  totalValue    Float     @map("valor_total")
-  xml           String?
-  status        String?
-  createdAt     DateTime  @default(now()) @map("created_at")
+//////////////////////////////////////
+// COMERCIAL
+//////////////////////////////////////
 
-  supplier   Supplier? @relation(fields: [supplierId], references: [id])
-  supplierId String?   @map("supplier_id")
+model ClientType {
+  id   String @id @default(uuid())
+  code String @unique
+  name String
 
-  client   Client? @relation(fields: [clientId], references: [id])
-  clientId String? @map("client_id")
+  clients Client[]
+}
+
+model Client {
+  id            String   @id @default(uuid())
+  corporateName String
+  fantasyName   String?
+  createdAt     DateTime @default(now())
+
+  type   ClientType? @relation(fields: [typeId], references: [id])
+  typeId String?
 
   company   Company @relation(fields: [companyId], references: [id])
   companyId String
 
-  salesOrders        SalesOrder[]
-  items              NfeItem[]
-  accountPayables    AccountPayable[]
-  accountReceivables AccountReceivable[]
-
-  @@map("nfe")
+  orders SalesOrder[]
 }
 
-model NfeItem {
-  id          String   @id @default(uuid())
-  description String?
-  quantity    Float?
-  unitValue   Float    @map("valor_unitario")
-  totalValue  Float    @map("valor_total")
-  ncm         String?
-  cfop        String?
-  cest        String?
-  createdAt   DateTime @default(now()) @map("created_at")
+model OrderStatus {
+  id   String @id @default(uuid())
+  code String @unique
+  name String
 
-  nfe   Nfe    @relation(fields: [nfeId], references: [id], onDelete: Cascade)
-  nfeId String @map("nfe_id")
-
-  product   Product? @relation(fields: [productId], references: [id])
-  productId String?  @map("product_id")
-
-  taxes NfeTax[]
-
-  @@map("nfe_item")
-}
-
-model NfeTax {
-  id        String   @id @default(uuid())
-  type      String?
-  baseValue Float?
-  rate      Float?
-  value     Float?
-  createdAt DateTime @default(now()) @map("created_at")
-
-  item   NfeItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  itemId String  @map("item_id")
-
-  @@map("nfe_tax")
-}
-
-model StockMovement {
-  id          String   @id @default(uuid())
-  type        String?
-  origin      String?
-  quantity    Float
-  referenceId String?
-  createdAt   DateTime @default(now())
-
-  product   Product @relation(fields: [productId], references: [id])
-  productId String
-
-  @@map("stock_movement")
-}
-
-model AccountPayable {
-  id          String   @id @default(uuid())
-  description String?
-  value       Float
-  dueDate     DateTime
-  status      String?  @default("PENDING")
-  createdAt   DateTime @default(now())
-
-  supplier   Supplier @relation(fields: [supplierId], references: [id])
-  supplierId String
-
-  nfe   Nfe?    @relation(fields: [nfeId], references: [id])
-  nfeId String?
-
-  payments Payment[]
-
-  @@map("account_payable")
-}
-
-model Payment {
-  id          String    @id @default(uuid())
-  valuePaid   Float?
-  paymentDate DateTime?
-  method      String?
-  createdAt   DateTime  @default(now())
-
-  account          AccountPayable @relation(fields: [accountPayableId], references: [id], onDelete: Cascade)
-  accountPayableId String
-
-  @@map("payment")
-}
-
-model AccountReceivable {
-  id          String    @id @default(uuid())
-  description String?
-  value       Float
-  dueDate     DateTime?
-  status      String?   @default("PENDING")
-  createdAt   DateTime  @default(now())
-
-  client   Client? @relation(fields: [clientId], references: [id])
-  clientId String?
-
-  nfe   Nfe?    @relation(fields: [nfeId], references: [id])
-  nfeId String?
-
-  @@map("account_receivable")
+  salesOrders SalesOrder[]
 }
 
 model SalesOrder {
   id          String   @id @default(uuid())
-  description String?
-  status      String?  @default("DRAFT")
   createdAt   DateTime @default(now())
+  description String?
+
+  status   OrderStatus @relation(fields: [statusId], references: [id])
+  statusId String
 
   company   Company @relation(fields: [companyId], references: [id])
   companyId String
@@ -312,22 +254,138 @@ model SalesOrder {
   clientId String?
 
   items SalesOrderItem[]
-  nfe   Nfe[]
-
-  @@map("sales_order")
 }
 
 model SalesOrderItem {
-  id        String   @id @default(uuid())
+  id        String @id @default(uuid())
   quantity  Float
   unitValue Float
-  createdAt DateTime @default(now())
 
-  order   SalesOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order   SalesOrder @relation(fields: [orderId], references: [id])
   orderId String
 
   product   Product? @relation(fields: [productId], references: [id])
   productId String?
+}
 
-  @@map("sales_order_item")
+//////////////////////////////////////
+// FINANCEIRO
+//////////////////////////////////////
+
+model CostCenter {
+  id   String @id @default(uuid())
+  code String @unique
+  name String
+
+  accountsPayable    AccountPayable[]
+  accountsReceivable AccountReceivable[]
+}
+
+model AccountStatus {
+  id   String @id @default(uuid())
+  code String @unique
+  name String
+
+  accountPayables AccountPayable[]
+
+  accountReceivables AccountReceivable[]
+}
+
+model AccountPayable {
+  id        String   @id @default(uuid())
+  value     Float
+  dueDate   DateTime
+  createdAt DateTime @default(now())
+
+  status   AccountStatus @relation(fields: [statusId], references: [id])
+  statusId String
+
+  costCenter   CostCenter? @relation(fields: [costCenterId], references: [id])
+  costCenterId String?
+
+  payments Payment[]
+
+  suppliers Supplier[]
+}
+
+model AccountReceivable {
+  id        String    @id @default(uuid())
+  value     Float
+  dueDate   DateTime?
+  createdAt DateTime  @default(now())
+
+  status   AccountStatus @relation(fields: [statusId], references: [id])
+  statusId String
+
+  costCenter   CostCenter? @relation(fields: [costCenterId], references: [id])
+  costCenterId String?
+}
+
+model PaymentMethod {
+  id   String @id @default(uuid())
+  code String @unique
+  name String
+
+  payments Payment[]
+}
+
+model Payment {
+  id          String    @id @default(uuid())
+  valuePaid   Float
+  paymentDate DateTime?
+  createdAt   DateTime  @default(now())
+
+  method   PaymentMethod @relation(fields: [methodId], references: [id])
+  methodId String
+
+  account          AccountPayable @relation(fields: [accountPayableId], references: [id])
+  accountPayableId String
+}
+
+//////////////////////////////////////
+// FISCAL (NFE)
+//////////////////////////////////////
+
+model Nfe {
+  id        String   @id @default(uuid())
+  number    String
+  accessKey String   @unique
+  issueDate DateTime
+  total     Float
+
+  company   Company @relation(fields: [companyId], references: [id])
+  companyId String
+
+  items NfeItem[]
+
+  suppliers Supplier[]
+}
+
+model NfeItem {
+  id        String @id @default(uuid())
+  quantity  Float
+  unitValue Float
+  description String?
+
+  product Product @relation(fields: [productId], references: [id])
+  productId   String @map("product_id")
+
+  nfe   Nfe    @relation(fields: [nfeId], references: [id])
+  nfeId String
+}
+
+//////////////////////////////////////
+// FAVORITOS
+//////////////////////////////////////
+
+model Favorite {
+  id String @id @default(uuid())
+
+  user   Users  @relation(fields: [userId], references: [id])
+  userId String
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+
+  @@unique([userId, productId])
 }

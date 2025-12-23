@@ -1,0 +1,4 @@
+{
+    "prisma.hidePrisma6Prompts": true,
+    "prisma.scriptRunner": "yarn"
+}
