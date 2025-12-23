@@ -74,11 +74,8 @@ model Company {
   cnpj      String?
   createdAt DateTime @default(now())
 
-  products    Product[]
-  clients     Client[]
-  suppliers   Supplier[]
-  salesOrders SalesOrder[]
-  nfe         Nfe[]
+  products  Product[]
+  suppliers Supplier[]
 }
 
 //////////////////////////////////////
@@ -98,17 +95,16 @@ model Product {
   name        String
   sku         String?
   barcode     String?
-  unit        String?  // unidade de medida
+  unit        String? // unidade de medida
   description String?
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
 
-  company   Company @relation(fields: [companyId], references: [id])
-  companyId String
+  company   Company? @relation(fields: [companyId], references: [id])
+  companyId String?
 
   category   Category? @relation(fields: [categoryId], references: [id])
   categoryId String?
-
 
   stockMovements StockMovement[]
   stockBalance   StockBalance?
@@ -117,37 +113,14 @@ model Product {
 
   productSuppliers ProductSupplier[]
 
-  salesOrderItems SalesOrderItem[]
-
   favorites Favorite[]
-}
-
-model StockMovementType {
-  id   String @id @default(uuid())
-  code String @unique
-  name String
-
-  stockMovements StockMovement[]
-}
-
-model StockMovementOrigin {
-  id   String @id @default(uuid())
-  code String @unique
-  name String
-
-  stockMovements StockMovement[]
 }
 
 model StockMovement {
   id        String   @id @default(uuid())
   quantity  Float
   createdAt DateTime @default(now())
-
-  type   StockMovementType @relation(fields: [typeId], references: [id])
-  typeId String
-
-  origin   StockMovementOrigin @relation(fields: [originId], references: [id])
-  originId String
+  type      String
 
   referenceId String?
 
@@ -166,7 +139,6 @@ model StockBalance {
 
 model Supplier {
   id            String   @id @default(uuid())
-  type          String
   corporateName String   @map("razao_social")
   fantasyName   String?  @map("nome_fantasia")
   cnpj          String?
@@ -205,70 +177,6 @@ model ProductSupplier {
 }
 
 //////////////////////////////////////
-// COMERCIAL
-//////////////////////////////////////
-
-model ClientType {
-  id   String @id @default(uuid())
-  code String @unique
-  name String
-
-  clients Client[]
-}
-
-model Client {
-  id            String   @id @default(uuid())
-  corporateName String
-  fantasyName   String?
-  createdAt     DateTime @default(now())
-
-  type   ClientType? @relation(fields: [typeId], references: [id])
-  typeId String?
-
-  company   Company @relation(fields: [companyId], references: [id])
-  companyId String
-
-  orders SalesOrder[]
-}
-
-model OrderStatus {
-  id   String @id @default(uuid())
-  code String @unique
-  name String
-
-  salesOrders SalesOrder[]
-}
-
-model SalesOrder {
-  id          String   @id @default(uuid())
-  createdAt   DateTime @default(now())
-  description String?
-
-  status   OrderStatus @relation(fields: [statusId], references: [id])
-  statusId String
-
-  company   Company @relation(fields: [companyId], references: [id])
-  companyId String
-
-  client   Client? @relation(fields: [clientId], references: [id])
-  clientId String?
-
-  items SalesOrderItem[]
-}
-
-model SalesOrderItem {
-  id        String @id @default(uuid())
-  quantity  Float
-  unitValue Float
-
-  order   SalesOrder @relation(fields: [orderId], references: [id])
-  orderId String
-
-  product   Product? @relation(fields: [productId], references: [id])
-  productId String?
-}
-
-//////////////////////////////////////
 // FINANCEIRO
 //////////////////////////////////////
 
@@ -277,8 +185,7 @@ model CostCenter {
   code String @unique
   name String
 
-  accountsPayable    AccountPayable[]
-  accountsReceivable AccountReceivable[]
+  accountsPayable AccountPayable[]
 }
 
 model AccountStatus {
@@ -287,8 +194,6 @@ model AccountStatus {
   name String
 
   accountPayables AccountPayable[]
-
-  accountReceivables AccountReceivable[]
 }
 
 model AccountPayable {
@@ -303,28 +208,8 @@ model AccountPayable {
   costCenter   CostCenter? @relation(fields: [costCenterId], references: [id])
   costCenterId String?
 
-  payments Payment[]
-
-  suppliers Supplier[]
-}
-
-model AccountReceivable {
-  id        String    @id @default(uuid())
-  value     Float
-  dueDate   DateTime?
-  createdAt DateTime  @default(now())
-
-  status   AccountStatus @relation(fields: [statusId], references: [id])
-  statusId String
-
-  costCenter   CostCenter? @relation(fields: [costCenterId], references: [id])
-  costCenterId String?
-}
-
-model PaymentMethod {
-  id   String @id @default(uuid())
-  code String @unique
-  name String
+  supplier   Supplier @relation(fields: [supplierId], references: [id])
+  supplierId String
 
   payments Payment[]
 }
@@ -334,9 +219,6 @@ model Payment {
   valuePaid   Float
   paymentDate DateTime?
   createdAt   DateTime  @default(now())
-
-  method   PaymentMethod @relation(fields: [methodId], references: [id])
-  methodId String
 
   account          AccountPayable @relation(fields: [accountPayableId], references: [id])
   accountPayableId String
@@ -352,23 +234,22 @@ model Nfe {
   accessKey String   @unique
   issueDate DateTime
   total     Float
-
-  company   Company @relation(fields: [companyId], references: [id])
-  companyId String
+  status    String?
 
   items NfeItem[]
 
-  suppliers Supplier[]
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
+  supplierId String?
 }
 
 model NfeItem {
-  id        String @id @default(uuid())
-  quantity  Float
-  unitValue Float
+  id          String  @id @default(uuid())
+  quantity    Float
+  unitValue   Float
   description String?
 
-  product Product @relation(fields: [productId], references: [id])
-  productId   String @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+  productId String  @map("product_id")
 
   nfe   Nfe    @relation(fields: [nfeId], references: [id])
   nfeId String
