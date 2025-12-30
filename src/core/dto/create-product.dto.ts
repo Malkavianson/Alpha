@@ -48,4 +48,6 @@ export class CreateProductDto {
 		example: "qw145abc-ab1d-12a3-1ab2-12a3b456c456",
 	})
 	category: string;
+	categoryId: any;
+	initialQuantity: number;
 }
