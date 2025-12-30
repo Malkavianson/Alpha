@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { ProductRepository } from "../repositories/product.repository";
-import { AuditRepository } from "../repositories/audit.repository";
+import { ProductRepository } from "../repositories/product/product.repository";
+import { AuditRepository } from "../repositories/audit/audit.repository";
 import { Product } from "@prisma/client";
 
 @Injectable()
