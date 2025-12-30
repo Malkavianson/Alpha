@@ -1,100 +1,68 @@
-import {
-	ConflictException,
-	Injectable,
-	NotFoundException,
-} from "@nestjs/common";
-import { CreateProductDto, UpdateProductDto } from "src/core";
-import { Product, User } from "./models";
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { ProductRepository } from "../repositories/product.repository";
+import { AuditRepository } from "../repositories/audit.repository";
+import { Product } from "@prisma/client";
 
 @Injectable()
 export class ProductsService {
 	constructor(
 		private readonly productRepository: ProductRepository,
-		private readonly stockService: StockService,
-		private readonly auditService: AuditService,
+		private readonly auditRepository: AuditRepository,
 	) {}
 
-	async create(dto: CreateProductDto, user: User): Promise<Product> {
-		if (dto.barcode) {
-			const existing = await this.productRepository.findByBarcode(
-				dto.barcode,
-			);
-			if (existing) {
-				throw new ConflictException("Produto já cadastrado");
-			}
-		}
+	async create(data: Partial<Product>, userId: string): Promise<Product> {
+		const product = await this.productRepository.save(data as Product);
 
-		const product = Product.create({
-			name: dto.name,
-			description: dto.description,
-			barcode: dto.barcode,
-			categoryId: dto.categoryId,
-			companyId: user.companyId,
-			createdBy: user.id,
-		});
-
-		const saved = await this.productRepository.save(product);
-
-		await this.stockService.initializeStock({
-			productId: saved.id,
-			quantity: dto.initialQuantity ?? 0,
-			userId: user.id,
-		});
-
-		await this.auditService.record({
-			action: "PRODUCT_CREATE",
+		await this.auditRepository.save({
+			action: "CREATE",
 			entity: "Product",
-			entityId: saved.id,
-			after: saved,
-			userId: user.id,
+			entityId: product.id,
+			userId,
+			after: JSON.stringify(product),
 		});
 
-		return saved;
+		return product;
 	}
 
 	async update(
 		id: string,
-		dto: UpdateProductDto,
-		user: User,
+		data: Partial<Product>,
+		userId: string,
 	): Promise<Product> {
-		const product = await this.productRepository.findById(id);
-		if (!product) {
-			throw new NotFoundException("Produto não encontrado");
+		const before = await this.productRepository.findById(id);
+
+		if (!before) {
+			throw new NotFoundException("Product not found");
 		}
 
-		const before = product.clone();
-
-		product.update({
-			name: dto.name,
-			description: dto.description,
-			price: dto.price,
-			categoryId: dto.categoryId,
-			active: dto.active,
+		const updated = await this.productRepository.save({
+			...before,
+			...data,
 		});
 
-		const updated = await this.productRepository.save(product);
-
-		await this.auditService.record({
-			action: "PRODUCT_UPDATE",
+		await this.auditRepository.save({
+			action: "UPDATE",
 			entity: "Product",
-			entityId: updated.id,
-			before,
-			after: updated,
-			userId: user.id,
+			entityId: id,
+			userId,
+			before: JSON.stringify(before),
+			after: JSON.stringify(updated),
 		});
 
 		return updated;
 	}
 
-	async findAll(): Promise<Product[]> {
-		return this.productRepository.findAll();
-	}
-
 	async findById(id: string): Promise<Product> {
 		const product = await this.productRepository.findById(id);
+
 		if (!product) {
-			throw new NotFoundException("Produto não encontrado");
+			throw new NotFoundException("Product not found");
 		}
+
 		return product;
+	}
+
+	async list(): Promise<Product[]> {
+		return this.productRepository.findAll();
 	}
 }

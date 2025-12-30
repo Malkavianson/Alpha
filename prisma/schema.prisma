@@ -70,50 +70,50 @@ model AuditLog {
 //////////////////////////////////////
 
 model Company {
-  id                String   @id @default(uuid())
-  name              String
-  fantasyName       String?  @map("fantasy_name")
-  cnpj              String?  @unique
-  ie                String?  @map("inscricao_estadual")  // Inscrição Estadual
-  im                String?  @map("inscricao_municipal") // Inscrição Municipal
-  crt               String?  @map("crt")  // Código de Regime Tributário (1=Simples, 2=Normal, 3=MEI)
-  cnae              String?  @map("cnae") // Código CNAE principal
-  
-  // Endereço Fiscal
-  street            String?  @map("logradouro")
-  number            String?  @map("numero")
-  complement        String?  @map("complemento")
-  district          String?  @map("bairro")
-  city              String?  @map("cidade")
-  state             String?  @map("uf")
-  zipCode           String?  @map("cep")
-  country           String?  @default("BRASIL")
-  
-  // Contato
-  phone             String?
-  email             String?
-  website           String?
-  
-  // Configurações
-  active            Boolean  @default(true)
-  timezone          String?  @default("America/Sao_Paulo")
-  currency          String?  @default("BRL")
-  language          String?  @default("pt-BR")
-  
-  // Parâmetros Fiscais
-  icmsContributor   Boolean  @map("icms_contributor") @default(false) // Contribuinte ICMS
-  icmsStResponsible Boolean  @map("icms_st_responsible") @default(false) // Responsável pela retenção ICMS ST
-  
-  // Códigos Especiais
-  suframa           String?  // Inscrição SUFRAMA
-  indIncentivo      String?  @map("ind_incentivo") // Indicador de incentivo fiscal
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id          String  @id @default(uuid())
+  name        String
+  fantasyName String? @map("fantasy_name")
+  cnpj        String? @unique
+  ie          String? @map("inscricao_estadual") // Inscrição Estadual
+  im          String? @map("inscricao_municipal") // Inscrição Municipal
+  crt         String? @map("crt") // Código de Regime Tributário (1=Simples, 2=Normal, 3=MEI)
+  cnae        String? @map("cnae") // Código CNAE principal
 
-  suppliers         Supplier[]
-  accounts          AccountIncome[]
-  Users             Users[]
+  // Endereço Fiscal
+  street     String? @map("logradouro")
+  number     String? @map("numero")
+  complement String? @map("complemento")
+  district   String? @map("bairro")
+  city       String? @map("cidade")
+  state      String? @map("uf")
+  zipCode    String? @map("cep")
+  country    String? @default("BRASIL")
+
+  // Contato
+  phone   String?
+  email   String?
+  website String?
+
+  // Configurações
+  active   Boolean @default(true)
+  timezone String? @default("America/Sao_Paulo")
+  currency String? @default("BRL")
+  language String? @default("pt-BR")
+
+  // Parâmetros Fiscais
+  icmsContributor   Boolean @default(false) @map("icms_contributor") // Contribuinte ICMS
+  icmsStResponsible Boolean @default(false) @map("icms_st_responsible") // Responsável pela retenção ICMS ST
+
+  // Códigos Especiais
+  suframa      String? // Inscrição SUFRAMA
+  indIncentivo String? @map("ind_incentivo") // Indicador de incentivo fiscal
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  suppliers Supplier[]
+  accounts  AccountIncome[]
+  Users     Users[]
 }
 
 //////////////////////////////////////
@@ -248,219 +248,219 @@ model AccountIncome {
 //////////////////////////////////////
 
 model Nfe {
-  id                String   @id @default(uuid())
-  number            String
-  series            String   @default("1")
-  model             String   @default("55") // 55=NF-e, 65=NFC-e
-  type              String   @default("ENTRADA") // ENTRADA ou SAIDA
-  nature            String?  @map("natureza_operacao") // Natureza da operação
-  purpose           String?  @default("1") // Finalidade (1=Normal, 2=Complementar, 3=Ajuste, 4=Devolução)
-  consumer          String?  @default("0") // Consumidor final (0=Normal, 1=Consumidor final)
-  
-  accessKey         String   @unique @map("chave_acesso")
-  verificationDigit String?  @map("digito_verificador")
-  
+  id       String  @id @default(uuid())
+  number   String
+  series   String  @default("1")
+  model    String  @default("55") // 55=NF-e, 65=NFC-e
+  type     String  @default("ENTRADA") // ENTRADA ou SAIDA
+  nature   String? @map("natureza_operacao") // Natureza da operação
+  purpose  String? @default("1") // Finalidade (1=Normal, 2=Complementar, 3=Ajuste, 4=Devolução)
+  consumer String? @default("0") // Consumidor final (0=Normal, 1=Consumidor final)
+
+  accessKey         String  @unique @map("chave_acesso")
+  verificationDigit String? @map("digito_verificador")
+
   // Datas importantes
-  issueDate         DateTime @map("data_emissao")
+  issueDate         DateTime  @map("data_emissao")
   entryDate         DateTime? @map("data_entrada_saida")
   authorizationDate DateTime? @map("data_autorizacao")
   cancellationDate  DateTime? @map("data_cancelamento")
-  
-  // Valores totais
-  totalProducts     Float    @map("valor_produtos")
-  totalDiscount     Float?   @map("valor_desconto") @default(0)
-  totalFreight      Float?   @map("valor_frete") @default(0)
-  totalInsurance    Float?   @map("valor_seguro") @default(0)
-  totalExpenses     Float?   @map("valor_despesas") @default(0)
-  totalBaseIcms     Float?   @map("valor_base_icms")
-  totalIcms         Float?   @map("valor_icms")
-  totalBaseIcmsSt   Float?   @map("valor_base_icms_st")
-  totalIcmsSt       Float?   @map("valor_icms_st")
-  totalIpi          Float?   @map("valor_ipi")
-  totalPis          Float?   @map("valor_pis")
-  totalCofins       Float?   @map("valor_cofins")
-  totalValue        Float    @map("valor_total")
-  totalApproxTax    Float?   @map("valor_tributos_aproximado")
-  
-  // Informações fiscais
-  cfop              String?  // CFOP principal
-  paymentMethod     String?  @map("forma_pagamento")
-  paymentCondition  String?  @map("condicao_pagamento")
-  operationType     String?  @map("tipo_operacao") // 0=Entrada, 1=Saída
-  destination       String?  @map("destino_operacao") // 1=Interna, 2=Interestadual, 3=Exterior
-  
-  // Status e controle
-  status            String?  @default("PENDENTE") // PENDENTE, AUTORIZADA, CANCELADA, DENEGADA
-  statusCode        String?  @map("codigo_status")
-  statusReason      String?  @map("motivo_status")
-  protocol          String?  @map("protocolo_autorizacao")
-  
-  // Documentos relacionados
-  invoiceRef        String?  @map("nota_fiscal_referenciada")
-  nfeRef            String?  @map("nfe_referenciada")
-  cteRef            String?  @map("cte_referenciado")
-  ecfRef            String?  @map("ecf_referenciado")
-  
-  // Transporte
-  carrierCnpj       String?  @map("transportadora_cnpj")
-  carrierName       String?  @map("transportadora_nome")
-  vehiclePlate      String?  @map("placa_veiculo")
-  vehicleUf         String?  @map("uf_veiculo")
-  freightType       String?  @map("tipo_frete") // 0=Por conta do emitente, 1=Por conta do destinatário
-  volumeQuantity    Int?     @map("quantidade_volumes")
-  volumeType        String?  @map("especie_volumes")
-  grossWeight       Float?   @map("peso_bruto")
-  netWeight         Float?   @map("peso_liquido")
-  
-  // Informações adicionais
-  additionalInfo    String?  @map("informacoes_adicionais")
-  xml               String? 
-  pdf               String? 
-  danfe             String? 
-  
-  // Controle
-  imported          Boolean  @default(false)
-  manual            Boolean  @default(false)
-  integrationId     String?  @map("id_integracao")
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
 
-  items             NfeItem[]
-  accounts          AccountPayable[]
-  
+  // Valores totais
+  totalProducts   Float  @map("valor_produtos")
+  totalDiscount   Float? @default(0) @map("valor_desconto")
+  totalFreight    Float? @default(0) @map("valor_frete")
+  totalInsurance  Float? @default(0) @map("valor_seguro")
+  totalExpenses   Float? @default(0) @map("valor_despesas")
+  totalBaseIcms   Float? @map("valor_base_icms")
+  totalIcms       Float? @map("valor_icms")
+  totalBaseIcmsSt Float? @map("valor_base_icms_st")
+  totalIcmsSt     Float? @map("valor_icms_st")
+  totalIpi        Float? @map("valor_ipi")
+  totalPis        Float? @map("valor_pis")
+  totalCofins     Float? @map("valor_cofins")
+  totalValue      Float  @map("valor_total")
+  totalApproxTax  Float? @map("valor_tributos_aproximado")
+
+  // Informações fiscais
+  cfop             String? // CFOP principal
+  paymentMethod    String? @map("forma_pagamento")
+  paymentCondition String? @map("condicao_pagamento")
+  operationType    String? @map("tipo_operacao") // 0=Entrada, 1=Saída
+  destination      String? @map("destino_operacao") // 1=Interna, 2=Interestadual, 3=Exterior
+
+  // Status e controle
+  status       String? @default("PENDENTE") // PENDENTE, AUTORIZADA, CANCELADA, DENEGADA
+  statusCode   String? @map("codigo_status")
+  statusReason String? @map("motivo_status")
+  protocol     String? @map("protocolo_autorizacao")
+
+  // Documentos relacionados
+  invoiceRef String? @map("nota_fiscal_referenciada")
+  nfeRef     String? @map("nfe_referenciada")
+  cteRef     String? @map("cte_referenciado")
+  ecfRef     String? @map("ecf_referenciado")
+
+  // Transporte
+  carrierCnpj    String? @map("transportadora_cnpj")
+  carrierName    String? @map("transportadora_nome")
+  vehiclePlate   String? @map("placa_veiculo")
+  vehicleUf      String? @map("uf_veiculo")
+  freightType    String? @map("tipo_frete") // 0=Por conta do emitente, 1=Por conta do destinatário
+  volumeQuantity Int?    @map("quantidade_volumes")
+  volumeType     String? @map("especie_volumes")
+  grossWeight    Float?  @map("peso_bruto")
+  netWeight      Float?  @map("peso_liquido")
+
+  // Informações adicionais
+  additionalInfo String? @map("informacoes_adicionais")
+  xml            String?
+  pdf            String?
+  danfe          String?
+
+  // Controle
+  imported      Boolean @default(false)
+  manual        Boolean @default(false)
+  integrationId String? @map("id_integracao")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items    NfeItem[]
+  accounts AccountPayable[]
+
   // Relacionamentos
-  supplier          Supplier? @relation(fields: [supplierId], references: [id])
-  supplierId        String?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
+  supplierId String?
 }
 
 model NfeItem {
-  id                String   @id @default(uuid())
-  
+  id String @id @default(uuid())
+
   // Identificação do item
-  itemNumber        Int      @map("numero_item")
-  code              String?  @map("codigo_produto")
-  gtin              String?  @map("gtin") // Global Trade Item Number
-  gtinTrib          String?  @map("gtin_tributavel")
-  
+  itemNumber Int     @map("numero_item")
+  code       String? @map("codigo_produto")
+  gtin       String? @map("gtin") // Global Trade Item Number
+  gtinTrib   String? @map("gtin_tributavel")
+
   // Descrição
-  description       String?
-  ncm               String?  @map("ncm") // Nomenclatura Comum do Mercosul
-  cest              String?  @map("cest") // Código Especificador da Substituição Tributária
-  cfop              String?  @map("cfop") // Código Fiscal de Operações
-  
+  description String?
+  ncm         String? @map("ncm") // Nomenclatura Comum do Mercosul
+  cest        String? @map("cest") // Código Especificador da Substituição Tributária
+  cfop        String? @map("cfop") // Código Fiscal de Operações
+
   // Unidades
-  commercialUnit    String   @map("unidade_comercial") @default("UN")
-  taxUnit           String?  @map("unidade_tributavel")
-  conversion        Float?   @map("fator_conversao") @default(1)
-  
+  commercialUnit String  @default("UN") @map("unidade_comercial")
+  taxUnit        String? @map("unidade_tributavel")
+  conversion     Float?  @default(1) @map("fator_conversao")
+
   // Quantidades
-  quantity          Float    @map("quantidade_comercial")
-  taxQuantity       Float?   @map("quantidade_tributavel")
-  
+  quantity    Float  @map("quantidade_comercial")
+  taxQuantity Float? @map("quantidade_tributavel")
+
   // Valores
-  unitValue         Float    @map("valor_unitario")
-  totalValue        Float    @map("valor_total")
-  discount          Float?   @default(0)
-  freight           Float?   @default(0)
-  insurance         Float?   @default(0)
-  otherExpenses     Float?   @map("outras_despesas") @default(0)
-  
+  unitValue     Float  @map("valor_unitario")
+  totalValue    Float  @map("valor_total")
+  discount      Float? @default(0)
+  freight       Float? @default(0)
+  insurance     Float? @default(0)
+  otherExpenses Float? @default(0) @map("outras_despesas")
+
   // Origem
-  origin            String?  @default("0") // 0=Nacional, 1=Estrangeira Importação Direta, etc.
-  
+  origin String? @default("0") // 0=Nacional, 1=Estrangeira Importação Direta, etc.
+
   // ICMS
-  icmsCst           String?  @map("icms_cst")
-  icmsCsosn         String?  @map("icms_csosn")
-  icmsOrigin        String?  @map("icms_origem")
-  icmsBase          Float?   @map("icms_base_calculo")
-  icmsRate          Float?   @map("icms_aliquota")
-  icmsValue         Float?   @map("icms_valor")
-  icmsExemptionCode String?  @map("icms_codigo_isencao")
-  icmsExemptionRate Float?   @map("icms_aliquota_isencao")
-  
+  icmsCst           String? @map("icms_cst")
+  icmsCsosn         String? @map("icms_csosn")
+  icmsOrigin        String? @map("icms_origem")
+  icmsBase          Float?  @map("icms_base_calculo")
+  icmsRate          Float?  @map("icms_aliquota")
+  icmsValue         Float?  @map("icms_valor")
+  icmsExemptionCode String? @map("icms_codigo_isencao")
+  icmsExemptionRate Float?  @map("icms_aliquota_isencao")
+
   // ICMS ST
-  icmsStBase        Float?   @map("icms_st_base_calculo")
-  icmsStRate        Float?   @map("icms_st_aliquota")
-  icmsStValue       Float?   @map("icms_st_valor")
-  icmsStModality    String?  @map("icms_st_modalidade")
-  mva               Float?   @map("mva") // Margem de Valor Agregado
-  
+  icmsStBase     Float?  @map("icms_st_base_calculo")
+  icmsStRate     Float?  @map("icms_st_aliquota")
+  icmsStValue    Float?  @map("icms_st_valor")
+  icmsStModality String? @map("icms_st_modalidade")
+  mva            Float?  @map("mva") // Margem de Valor Agregado
+
   // IPI
-  ipiCst            String?  @map("ipi_cst")
-  ipiBase           Float?   @map("ipi_base_calculo")
-  ipiRate           Float?   @map("ipi_aliquota")
-  ipiValue          Float?   @map("ipi_valor")
-  ipiEnquadramento  String?  @map("ipi_enquadramento")
-  
+  ipiCst           String? @map("ipi_cst")
+  ipiBase          Float?  @map("ipi_base_calculo")
+  ipiRate          Float?  @map("ipi_aliquota")
+  ipiValue         Float?  @map("ipi_valor")
+  ipiEnquadramento String? @map("ipi_enquadramento")
+
   // PIS
-  pisCst            String?  @map("pis_cst")
-  pisBase           Float?   @map("pis_base_calculo")
-  pisRate           Float?   @map("pis_aliquota")
-  pisValue          Float?   @map("pis_valor")
-  
+  pisCst   String? @map("pis_cst")
+  pisBase  Float?  @map("pis_base_calculo")
+  pisRate  Float?  @map("pis_aliquota")
+  pisValue Float?  @map("pis_valor")
+
   // COFINS
-  cofinsCst         String?  @map("cofins_cst")
-  cofinsBase        Float?   @map("cofins_base_calculo")
-  cofinsRate        Float?   @map("cofins_aliquota")
-  cofinsValue       Float?   @map("cofins_valor")
-  
+  cofinsCst   String? @map("cofins_cst")
+  cofinsBase  Float?  @map("cofins_base_calculo")
+  cofinsRate  Float?  @map("cofins_aliquota")
+  cofinsValue Float?  @map("cofins_valor")
+
   // ISS (para serviços)
-  issCst            String?  @map("iss_cst")
-  issBase           Float?   @map("iss_base_calculo")
-  issRate           Float?   @map("iss_aliquota")
-  issValue          Float?   @map("iss_valor")
-  issRetained       Boolean? @map("iss_retido") @default(false)
-  
+  issCst      String?  @map("iss_cst")
+  issBase     Float?   @map("iss_base_calculo")
+  issRate     Float?   @map("iss_aliquota")
+  issValue    Float?   @map("iss_valor")
+  issRetained Boolean? @default(false) @map("iss_retido")
+
   // Informações complementares
-  fci               String?  @map("fci") // Ficha de Conteúdo de Importação
-  nve               String?  @map("nve") // Nomenclatura de Valor Aduaneiro
-  indTot            String?  @map("ind_total") @default("1") // Indica se entra no total da NF
-  
+  fci    String? @map("fci") // Ficha de Conteúdo de Importação
+  nve    String? @map("nve") // Nomenclatura de Valor Aduaneiro
+  indTot String? @default("1") @map("ind_total") // Indica se entra no total da NF
+
   // Tributos aproximados
-  approxTax         Float?   @map("tributos_aproximados")
-  
+  approxTax Float? @map("tributos_aproximados")
+
   // Combustíveis (se aplicável)
-  anpCode           String?  @map("codigo_anp")
-  blend             String?  @map("descricao_mistura")
-  petroCode         String?  @map("codigo_produto_petro")
-  
+  anpCode   String? @map("codigo_anp")
+  blend     String? @map("descricao_mistura")
+  petroCode String? @map("codigo_produto_petro")
+
   // Veículos (se aplicável)
-  vehicleType       String?  @map("tipo_veiculo")
-  engineType        String?  @map("tipo_motor")
-  chassis           String?  @map("chassi")
-  color             String?  @map("cor")
-  power             String?  @map("potencia")
-  capacity          String?  @map("cilindrada")
-  weight            String?  @map("peso")
-  vin               String?  @map("vin") // Vehicle Identification Number
-  
+  vehicleType String? @map("tipo_veiculo")
+  engineType  String? @map("tipo_motor")
+  chassis     String? @map("chassi")
+  color       String? @map("cor")
+  power       String? @map("potencia")
+  capacity    String? @map("cilindrada")
+  weight      String? @map("peso")
+  vin         String? @map("vin") // Vehicle Identification Number
+
   // Medicamentos (se aplicável)
-  drugRegistry      String?  @map("registro_ms")
-  drugQuantity      Float?   @map("quantidade_farmaco")
-  
+  drugRegistry String? @map("registro_ms")
+  drugQuantity Float?  @map("quantidade_farmaco")
+
   // Armamento (se aplicável)
-  weaponType        String?  @map("tipo_arma")
-  weaponSerial      String?  @map("numero_serie_arma")
-  weaponCaliber     String?  @map("calibre_arma")
-  
+  weaponType    String? @map("tipo_arma")
+  weaponSerial  String? @map("numero_serie_arma")
+  weaponCaliber String? @map("calibre_arma")
+
   // Informações adicionais
-  additionalInfo    String?  @map("informacoes_adicionais_item")
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  additionalInfo String? @map("informacoes_adicionais_item")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relacionamentos
-  product           Product @relation(fields: [productId], references: [id])
-  productId         String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+  productId String  @map("product_id")
 
-  nfe               Nfe     @relation(fields: [nfeId], references: [id])
-  nfeId             String
-  
+  nfe   Nfe    @relation(fields: [nfeId], references: [id])
+  nfeId String
+
   // // Para rastreabilidade de estoque
   // stockMovement     StockMovement? @relation(fields: [stockMovementId], references: [id])
   // stockMovementId   String?
-  
+
   @@unique([nfeId, itemNumber])
 }
 

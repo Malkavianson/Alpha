@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService, Product } from "src/services";
 
 @Injectable()
@@ -6,32 +7,32 @@ export class ProductRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async findById(id: string): Promise<Product | null> {
-		const data = await this.prisma.product.findUnique({ where: { id } });
-		return data ? ProductMapper.toDomain(data) : null;
+		return this.prisma.product.findUnique({
+			where: { id },
+		});
 	}
 
 	async findByBarcode(barcode: string): Promise<Product | null> {
-		const data = await this.prisma.product.findUniqueOrThrow({
+		return this.prisma.product.findUnique({
 			where: { barcode },
 		});
-		return data ? ProductMapper.toDomain(data) : null;
 	}
 
-	async save(product: Product): Promise<Product> {
-		const data = ProductMapper.toPersistence(product);
+	async create(data: Prisma.ProductCreateInput): Promise<Product> {
+		return this.prisma.product.create({ data });
+	}
 
-		const saved = product.id
-			? await this.prisma.product.update({
-					where: { id: product.id },
-					data,
-			  })
-			: await this.prisma.product.create({ data });
-
-		return ProductMapper.toDomain(saved);
+	async update(
+		id: string,
+		data: Prisma.ProductUpdateInput,
+	): Promise<Product> {
+		return this.prisma.product.update({
+			where: { id },
+			data,
+		});
 	}
 
 	async findAll(): Promise<Product[]> {
-		const list = await this.prisma.product.findMany();
-		return list.map(ProductMapper.toDomain);
+		return this.prisma.product.findMany();
 	}
 }
